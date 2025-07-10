@@ -6,7 +6,8 @@ A modern, user-friendly application that delivers the latest news in a clean and
 
 ## 📸 Screenshots
 
-![App Demo](newsapp.gif)
+![news-app](https://github.com/user-attachments/assets/5f7eddcb-7975-478e-860b-8ffc0659c98b)
+
 
 ## 🚀 Features
 
