@@ -37,6 +37,11 @@ function App() {
         keyExtractor={(item, index) => item.id.toString()}
         data={products}
         renderItem={renderProducts}
+        numColumns={2}
+        columnWrapperStyle={{
+          justifyContent: 'space-between',
+          marginBottom: 1,
+        }}
       />
     </SafeAreaView>
   );
@@ -61,11 +66,6 @@ const styles = StyleSheet.create({
   searchInput: {
     height: 30,
     fontSize: 16,
-  },
-  wrapper: {
-    display: 'flex',
-    flexDirection: 'row',
-    flexWrap: 'nowrap',
   },
 });
 
