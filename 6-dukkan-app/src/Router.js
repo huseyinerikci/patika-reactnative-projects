@@ -3,32 +3,53 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { StyleSheet, Text, View } from 'react-native';
 import Products from './pages/Products';
 import Detail from './pages/Detail';
+import Login from './pages/Login';
+import Loader from './components/Loader';
+import { useSelector } from 'react-redux';
 
 const Stack = createNativeStackNavigator();
 function Router() {
+  const userSession = useSelector(state => state.user);
+  const isAuthLoading = useSelector(state => state.isAuthLoading);
+
   return (
     <NavigationContainer style={styles.container}>
-      <Stack.Navigator>
-        <Stack.Screen
-          name="ProductsPage"
-          component={Products}
-          options={{
-            title: 'Dükkan',
-            headerStyle: { backgroundColor: '#64b5f6' },
-            headerTitleStyle: { color: 'white' },
-          }}
-        />
-        <Stack.Screen
-          name="DetailPage"
-          component={Detail}
-          options={{
-            title: 'Detay',
-            headerStyle: { backgroundColor: '#64b5f6' },
-            headerTitleStyle: { color: 'white' },
-            headerTintColor: 'white',
-          }}
-        />
-      </Stack.Navigator>
+      {isAuthLoading ? (
+        <Loader />
+      ) : !userSession ? (
+        <Stack.Navigator>
+          <Stack.Screen
+            name="LoginPage"
+            component={Login}
+            options={{
+              headerShown: false,
+            }}
+          />
+        </Stack.Navigator>
+      ) : (
+        <Stack.Navigator>
+          <Stack.Screen
+            name="ProductsPage"
+            component={Products}
+            options={{
+              title: 'Dükkan',
+              headerStyle: { backgroundColor: '#64b5f6' },
+              headerTitleStyle: { color: 'white' },
+              headerTintColor: 'white',
+            }}
+          />
+          <Stack.Screen
+            name="DetailPage"
+            component={Detail}
+            options={{
+              title: 'Detay',
+              headerStyle: { backgroundColor: '#64b5f6' },
+              headerTitleStyle: { color: 'white' },
+              headerTintColor: 'white',
+            }}
+          />
+        </Stack.Navigator>
+      )}
     </NavigationContainer>
   );
 }
