@@ -1,16 +1,18 @@
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { StyleSheet, Text, View } from 'react-native';
+import Icon from 'react-native-vector-icons/FontAwesome6';
+import { StyleSheet } from 'react-native';
 import Products from './pages/Products';
 import Detail from './pages/Detail';
 import Login from './pages/Login';
 import Loader from './components/Loader';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 
 const Stack = createNativeStackNavigator();
 function Router() {
   const userSession = useSelector(state => state.user);
   const isAuthLoading = useSelector(state => state.isAuthLoading);
+  const dispatch = useDispatch();
 
   return (
     <NavigationContainer style={styles.container}>
@@ -36,6 +38,14 @@ function Router() {
               headerStyle: { backgroundColor: '#64b5f6' },
               headerTitleStyle: { color: 'white' },
               headerTintColor: 'white',
+              headerRight: () => (
+                <Icon
+                  name="right-from-bracket"
+                  size={26}
+                  color="white"
+                  onPress={() => dispatch({ type: 'REMOVE_USER' })}
+                />
+              ),
             }}
           />
           <Stack.Screen

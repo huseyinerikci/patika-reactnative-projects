@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Alert, Image, SafeAreaView, View } from 'react-native';
 import styles from './Login.style';
 import Input from '../../components/Input';
@@ -7,26 +7,46 @@ import { Formik } from 'formik';
 import usePost from '../../hooks/usePost';
 import Config from 'react-native-config';
 import { useDispatch } from 'react-redux';
+import axios from 'axios';
 
 const Login = () => {
   const { data, error, loading, post } = usePost();
   const dispatch = useDispatch();
+  const [uname, setUname] = useState('');
 
+  // Giriş işlemi sırasında kullanıcı adını state'e kaydet
   const handleLogin = values => {
+    setUname(values.username);
     post(Config.API_AUTH_URL + '/login', values);
   };
 
-  if (error) {
-    Alert.alert('Dükkan', 'Bir hata oluştu, lütfen tekrar deneyiniz.');
-  }
-
-  if (data) {
-    if (data.status === 'Error') {
-      Alert.alert('Dükkan', 'Kullanıcı Bulunamadı');
-    } else {
-      dispatch({ type: 'SET_USER', payload: { user: user } });
+  // Hatalı girişte alert göster
+  useEffect(() => {
+    if (error) {
+      Alert.alert('Dükkan', 'Kullanıcı adı veya şifre hatalı!');
     }
-  }
+  }, [error]);
+
+  // Login başarılıysa kullanıcı bilgilerini çek ve redux'a kaydet
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const res = await axios.get('https://fakestoreapi.com/users');
+        const foundUser = res.data.find(u => u.username === uname);
+        if (foundUser) {
+          dispatch({ type: 'SET_USER', payload: { user: foundUser } });
+        } else {
+          Alert.alert('Dükkan', 'Kullanıcı bulunamadı.');
+        }
+      } catch (e) {
+        Alert.alert('Dükkan', 'Kullanıcı bilgisi alınamadı.');
+      }
+    };
+
+    if (data && data.token && uname) {
+      fetchUser();
+    }
+  }, [data, uname]);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -45,7 +65,6 @@ const Login = () => {
               value={values.username}
               onType={handleChange('username')}
             />
-
             <Input
               iconName={'key'}
               placeholder={'Şifrenizi giriniz'}
@@ -60,26 +79,5 @@ const Login = () => {
     </SafeAreaView>
   );
 };
-const user = {
-  address: {
-    geolocation: {
-      lat: '-37.3159',
-      long: '81.1496',
-    },
-    city: 'kilcoole',
-    street: 'new road',
-    number: 7682,
-    zipcode: '12926-3874',
-  },
-  id: 1,
-  email: 'john@gmail.com',
-  username: 'johnd',
-  password: 'm38rmF$',
-  name: {
-    firstname: 'john',
-    lastname: 'doe',
-  },
-  phone: '1-570-236-7033',
-  __v: 0,
-};
+
 export default Login;
