@@ -1,32 +1,42 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { FlatList, SafeAreaView, Text, View } from 'react-native';
 import styles from './Jobs.style';
 import JobCard from '../../components/JobCard';
-import axios from 'axios';
+
+import Loader from '../../components/Loader';
+import Config from 'react-native-config';
+import useFetch from '../../hooks/useFetch';
 
 const Jobs = ({ navigation }) => {
-  const [jobs, setJobs] = useState([]);
+  const { data, loading, error } = useFetch(Config.API_URL + '?page=1');
+  const jobs = data.results;
+
   const handleCard = (id, name) => {
     navigation.navigate('DetailPage', { id, name });
   };
 
-  const dataFetch = async () => {
-    try {
-      const res = await axios.get(
-        'https://www.themuse.com/api/public/jobs?page=1',
-      );
-      console.log('API RESPONSE:', res.data.results);
-      setJobs(res.data.results);
-    } catch (error) {
-      console.log('API ERROR:', error);
-    }
-  };
-  useEffect(() => {
-    dataFetch();
-  }, []);
   const renderCard = ({ item }) => (
     <JobCard job={item} onSelect={() => handleCard(item.id, item.name)} />
   );
+
+  if (loading) return <Loader />;
+  if (error) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <Text
+          style={{
+            fontSize: 20,
+            backgroundColor: 'red',
+            padding: 10,
+            color: 'white',
+            borderRadius: 5,
+          }}
+        >
+          Error fetching jobs
+        </Text>
+      </View>
+    );
+  }
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <FlatList data={jobs} renderItem={renderCard} />
