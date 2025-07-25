@@ -18,9 +18,8 @@ const Button = ({ text, onPress, loading, iconName }) => {
       {loading ? (
         <ActivityIndicator color="white" />
       ) : (
-        <View style={{ flexDirection: 'row', gap: 8, alignItems: 'center' }}>
+        <View style={styles.wrapper}>
           <FontAwesome6 name={iconName} size={20} color="white" />
-
           <Text style={styles.text}>{text}</Text>
         </View>
       )}
@@ -36,6 +35,11 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     borderRadius: 6,
+  },
+  wrapper: {
+    flexDirection: 'row',
+    gap: 8,
+    alignItems: 'center',
   },
   text: { color: 'white', fontWeight: 'bold' },
 });

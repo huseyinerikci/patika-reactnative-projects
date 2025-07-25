@@ -22,23 +22,13 @@ const Jobs = ({ navigation }) => {
   if (loading) return <Loader />;
   if (error) {
     return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-        <Text
-          style={{
-            fontSize: 20,
-            backgroundColor: 'red',
-            padding: 10,
-            color: 'white',
-            borderRadius: 5,
-          }}
-        >
-          Error fetching jobs
-        </Text>
+      <View style={styles.err_container}>
+        <Text style={styles.err_text}>Error fetching jobs</Text>
       </View>
     );
   }
   return (
-    <SafeAreaView style={{ flex: 1 }}>
+    <SafeAreaView style={styles.container}>
       <FlatList data={jobs} renderItem={renderCard} />
     </SafeAreaView>
   );

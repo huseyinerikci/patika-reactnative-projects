@@ -21,7 +21,8 @@ export default StyleSheet.create({
     backgroundColor: 'red',
     alignSelf: 'flex-start',
     color: 'white',
-    padding: 3,
+    paddingVertical: 4,
+    paddingHorizontal: 8,
     alignItems: 'center',
     borderRadius: 20,
     marginVertical: 4,
@@ -33,5 +34,8 @@ export default StyleSheet.create({
     fontWeight: 600,
     letterSpacing: 1.1,
     fontSize: 12,
+  },
+  rmv_btn: {
+    marginTop: 10,
   },
 });

@@ -4,6 +4,6 @@
 import 'react-native-reanimated';
 import { AppRegistry } from 'react-native';
 import { name as appName } from './app.json';
-import Router from './src/Router';
+import Wrapper from './src/Wrapper';
 
-AppRegistry.registerComponent(appName, () => Router);
+AppRegistry.registerComponent(appName, () => Wrapper);

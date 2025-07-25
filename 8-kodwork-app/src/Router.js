@@ -44,8 +44,7 @@ function FavoriteStack() {
         name="Favorited Jobs"
         component={Favorite}
         options={{
-          headerTintColor: 'red',
-          headerTitle: 'Favorited Jobs',
+          headerShown: false,
         }}
       />
     </Stack.Navigator>
@@ -58,10 +57,22 @@ function Router() {
       <Drawer.Navigator
         screenOptions={{
           headerShown: false,
+
+          drawerActiveTintColor: 'red',
+          drawerInactiveTintColor: 'gray',
+          drawerItemStyle: { borderRadius: 5, color: 'red' },
         }}
       >
-        <Drawer.Screen name="Jobs" component={JobsStack} />
-        <Drawer.Screen name="Favorited Jobs" component={FavoriteStack} />
+        <Drawer.Screen
+          name="JobsDrawer"
+          component={JobsStack}
+          options={{ title: 'Jobs' }}
+        />
+        <Drawer.Screen
+          name="FavoritedDrawer"
+          component={FavoriteStack}
+          options={{ title: 'Favorited Jobs' }}
+        />
       </Drawer.Navigator>
     </NavigationContainer>
   );

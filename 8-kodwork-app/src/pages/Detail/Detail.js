@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   SafeAreaView,
   ScrollView,
@@ -12,14 +12,18 @@ import Config from 'react-native-config';
 import Loader from '../../components/Loader';
 import RenderHTML from 'react-native-render-html';
 import Button from '../../components/Button/Button';
+import { useDispatch, useSelector } from 'react-redux';
 
 const Detail = ({ route }) => {
   const { id } = route.params;
   const { width } = useWindowDimensions();
+  const dispatch = useDispatch();
+
+  const favoriteList = useSelector(state => state.list);
+  const isAlreadyFavorite = favoriteList.some(item => item.id === id);
 
   const { loading, error, data } = useFetch(Config.API_URL + '/' + id);
-  console.log(Config.API_URL + '/' + id);
-  console.log(data);
+
   if (loading) {
     return <Loader />;
   }
@@ -48,6 +52,14 @@ const Detail = ({ route }) => {
     },
   );
 
+  const handleFavorite = () => {
+    dispatch({ type: 'ADD_TO_LIST', payload: data });
+    // setAddFavorite(true);
+  };
+  const handleRemove = () => {
+    dispatch({ type: 'REMOVE_FROM_LIST', payload: data });
+    // setAddFavorite(false);
+  };
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView>
@@ -79,10 +91,10 @@ const Detail = ({ route }) => {
             iconName="right-to-bracket"
           />
           <Button
-            text="Favorite Job"
+            text={isAlreadyFavorite ? 'Remove Favorite Job' : 'Favorite Job'}
             loading={loading}
-            onPress={null}
-            iconName={'heart'}
+            onPress={isAlreadyFavorite ? handleRemove : handleFavorite}
+            iconName={isAlreadyFavorite ? 'heart-crack' : 'heart'}
           />
         </View>
       </ScrollView>
