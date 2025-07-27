@@ -1,9 +1,8 @@
 import React from 'react';
 import { ActivityIndicator, Text, TouchableOpacity, View } from 'react-native';
 import styles from './Button.style';
-import FontAwesome6 from '@react-native-vector-icons/fontawesome6';
 
-const Button = ({ text, onPress, loading, icon, theme = 'primary' }) => {
+const Button = ({ text, onPress, loading, theme = 'primary' }) => {
   return (
     <TouchableOpacity
       style={styles[theme].container}
@@ -14,7 +13,6 @@ const Button = ({ text, onPress, loading, icon, theme = 'primary' }) => {
         <ActivityIndicator color="white" />
       ) : (
         <View style={styles[theme].button_container}>
-          <FontAwesome6 name={icon} color={'white'} size={18} />
           <Text style={styles[theme].title}>{text}</Text>
         </View>
       )}

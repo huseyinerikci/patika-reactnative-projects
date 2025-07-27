@@ -1,4 +1,5 @@
 import { StyleSheet } from 'react-native';
+import colors from '../../styles/color';
 
 const base_style = StyleSheet.create({
   container: {
@@ -23,7 +24,7 @@ export default {
     ...base_style,
     container: {
       ...base_style.container,
-      backgroundColor: '#00897b',
+      backgroundColor: colors.drakgreen,
     },
     title: {
       ...base_style.title,
@@ -36,12 +37,12 @@ export default {
     container: {
       ...base_style.container,
       backgroundColor: 'white',
-      borderColor: '#00897b',
+      borderColor: colors.drakgreen,
       borderWidth: 1,
     },
     title: {
       ...base_style.title,
-      color: '#00897b',
+      color: colors.drakgreen,
     },
   }),
 };
