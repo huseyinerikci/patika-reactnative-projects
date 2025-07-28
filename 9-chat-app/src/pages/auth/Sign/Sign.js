@@ -33,11 +33,11 @@ const Sign = ({ navigation }) => {
         formValues.usermail.trim(),
         formValues.password,
       );
+      await auth.signOut();
       showMessage({
         message: 'Kullanıcı oluşturuldu',
         type: 'success',
       });
-      navigation.navigate('LoginPage');
     } catch (error) {
       console.log(error);
       showMessage({
@@ -47,7 +47,6 @@ const Sign = ({ navigation }) => {
     } finally {
       setLoading(false);
     }
-    console.log(formValues);
   };
   return (
     <SafeAreaView style={styles.container}>

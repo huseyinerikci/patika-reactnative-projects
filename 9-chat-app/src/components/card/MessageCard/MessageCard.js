@@ -1,11 +1,31 @@
 import React from 'react';
 import styles from './MessageCard.style';
-import { Text, View } from 'react-native';
+import { Text, TouchableOpacity, View } from 'react-native';
+import { formatDistance, parseISO } from 'date-fns';
+import { tr } from 'date-fns/locale';
 
-const MessageCard = () => {
+const MessageCard = ({ message, onChat }) => {
+  const formattedDate = formatDistance(parseISO(message.date), new Date(), {
+    addSuffix: true,
+    locale: tr,
+  });
   return (
-    <View>
-      <Text style={styles.container}>MessageCard</Text>
+    <View style={styles.container}>
+      <View style={styles.inner_container}>
+        <Text style={styles.user}>{message.username}</Text>
+        <Text style={styles.date}>{formattedDate}</Text>
+      </View>
+      <Text style={styles.title}>{message.text}</Text>
+      <View style={styles.footer}>
+        <TouchableOpacity style={styles.dislike_container} onPress={onChat}>
+          {!!message.dislike && (
+            <View style={styles.dislike_count_container}>
+              <Text style={styles.dislike_count_text}>{message.dislike}</Text>
+            </View>
+          )}
+          <Text style={styles.dislike_text}>Dislike</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 };
