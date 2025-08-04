@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "148052525972",
+    "project_id": "codetalks-4f61b",
+    "storage_bucket": "codetalks-4f61b.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:148052525972:android:ecf5567b91826c2e1a0581",
+        "android_client_info": {
+          "package_name": "com.codetalks"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCy9jG-e5YeZ-D6VxX2K6GEgBkuIGLnX-I"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

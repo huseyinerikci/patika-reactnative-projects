@@ -1,12 +1,12 @@
-import { View, Text, SafeAreaView } from 'react-native';
+import { Text, TouchableOpacity } from 'react-native';
 import React from 'react';
 import styles from './RoomCard.style';
 
-const RoomCard = () => {
+const RoomCard = ({ rooms, onPress }) => {
   return (
-    <SafeAreaView style={styles.container}>
-      <Text style={styles.title}>card</Text>
-    </SafeAreaView>
+    <TouchableOpacity style={styles.container} onPress={onPress}>
+      <Text style={styles.title}>{rooms.title}</Text>
+    </TouchableOpacity>
   );
 };
 

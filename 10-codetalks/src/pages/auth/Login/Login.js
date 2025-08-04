@@ -4,6 +4,9 @@ import styles from './Login.style';
 import { Formik } from 'formik';
 import Input from '../../../components/Input';
 import Button from '../../../components/Button';
+import { getAuth } from '@react-native-firebase/auth';
+import { showMessage } from 'react-native-flash-message';
+import authErrorMessageParser from '../../../utils/authErrorMessageParser';
 
 const Login = ({ navigation }) => {
   const [loading, setLoading] = useState(false);
@@ -11,7 +14,22 @@ const Login = ({ navigation }) => {
     usermail: '',
     password: '',
   };
-  const handleFormSubmit = () => {};
+  const handleFormSubmit = async formValues => {
+    setLoading(true);
+    try {
+      await getAuth().signInWithEmailAndPassword(
+        formValues.usermail,
+        formValues.password,
+      );
+    } catch (error) {
+      showMessage({
+        message: authErrorMessageParser(error.code),
+        type: 'danger',
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
   const handleSign = () => {
     navigation.navigate('SignPage');
   };

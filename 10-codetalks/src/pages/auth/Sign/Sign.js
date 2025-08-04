@@ -4,6 +4,9 @@ import styles from './Sign.style';
 import { Formik } from 'formik';
 import Button from '../../../components/Button';
 import Input from '../../../components/Input';
+import { showMessage } from 'react-native-flash-message';
+import { getAuth } from '@react-native-firebase/auth';
+import authErrorMessageParser from '../../../utils/authErrorMessageParser';
 
 const Sign = ({ navigation }) => {
   const [loading, setLoading] = useState(false);
@@ -12,14 +15,47 @@ const Sign = ({ navigation }) => {
     password: '',
     repassword: '',
   };
-  const handleFormSubmit = () => {};
+  const handleFormSubmit = async (formValues, { resetForm }) => {
+    if (formValues.password !== formValues.repassword) {
+      showMessage({
+        message: 'Şifreler uyuşmuyor',
+        type: 'danger',
+      });
+      return;
+    }
+    setLoading(true);
+    try {
+      await getAuth().createUserWithEmailAndPassword(
+        formValues.usermail.trim(),
+        formValues.password,
+      );
+      await getAuth().signOut();
+      showMessage({
+        message: 'Kullanıcı oluşturuldu',
+        type: 'success',
+      });
+      resetForm();
+    } catch (error) {
+      showMessage({
+        message: authErrorMessageParser(error.code),
+        type: 'danger',
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
   const handleLogin = () => {
     navigation.goBack();
   };
   return (
     <SafeAreaView style={styles.container}>
       <Text style={styles.title}>Codetalks</Text>
-      <Formik initialValues={initialFormValues} onSubmit={handleFormSubmit}>
+      <Formik
+        initialValues={initialFormValues}
+        onSubmit={(values, formikHelpers) =>
+          handleFormSubmit(values, formikHelpers)
+        }
+      >
         {({ values, handleChange, handleSubmit }) => (
           <View style={styles.body_container}>
             <Input
