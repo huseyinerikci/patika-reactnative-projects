@@ -112,6 +112,7 @@
 				00DD1BFF1BD5951E006B06BC /* Bundle React Native code and images */,
 				00EEFC60759A1932668264C0 /* [CP] Embed Pods Frameworks */,
 				E235C05ADACE081382539298 /* [CP] Copy Pods Resources */,
+				1D5D74D42E454A8200B1FC3B /* Run Script */,
 			);
 			buildRules = (
 			);
@@ -199,6 +200,24 @@
 			shellPath = /bin/sh;
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-mapApp/Pods-mapApp-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
+		};
+		1D5D74D42E454A8200B1FC3B /* Run Script */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Run Script";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\n# .xcode.env ve .xcode.env.local dosyalarını source et\nif [ -f \"${SRCROOT}/.xcode.env\" ]; then\n  source \"${SRCROOT}/.xcode.env\"\nfi\n\nif [ -f \"${SRCROOT}/.xcode.env.local\" ]; then\n  source \"${SRCROOT}/.xcode.env.local\"\nfi\n\n# GOOGLE_API_KEY'i Info.plist'e yaz\n/usr/libexec/PlistBuddy -c \"Set :GOOGLE_API_KEY $GOOGLE_API_KEY\" \"${TARGET_BUILD_DIR}/${INFOPLIST_PATH}\"\n";
 		};
 		C38B50BA6285516D6DCD4F65 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;

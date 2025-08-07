@@ -72,6 +72,10 @@ def enableProguardInReleaseBuilds = false
  */
 def jscFlavor = 'io.github.react-native-community:jsc-android:2026004.+'
 
+def getGoogleMapsApiKey = { -> 
+    return project.hasProperty("google_maps_api_key") ? project.google_maps_api_key : ""
+}
+
 android {
     ndkVersion rootProject.ext.ndkVersion
     buildToolsVersion rootProject.ext.buildToolsVersion
@@ -84,6 +88,8 @@ android {
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
         versionName "1.0"
+        resValue "string", "google_maps_api_key", getGoogleMapsApiKey()
+
     }
     signingConfigs {
         debug {
@@ -127,4 +133,5 @@ dependencies {
     implementation 'com.google.android.gms:play-services-base:18.0.1'
     implementation 'com.google.android.gms:play-services-location:19.0.1'
     implementation 'com.google.android.gms:play-services-maps:18.0.2'
+    implementation project(':react-native-onesignal')
 }

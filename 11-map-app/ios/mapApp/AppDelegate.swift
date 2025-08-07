@@ -15,7 +15,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     _ application: UIApplication,
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
   ) -> Bool {
-    GMSServices.provideAPIKey("AIzaSyBqIlk6Wxq_qoiOVvPparcT2ZyZpfVy68A")
+    if let apiKey = Bundle.main.object(forInfoDictionaryKey: "GOOGLE_API_KEY") as? String {
+      print("✅ GOOGLE_API_KEY bulundu.")
+      GMSServices.provideAPIKey(apiKey)
+    } else {
+      print("❌ GOOGLE_API_KEY bulunamadı.")
+    }
+
+
+    
    
     let delegate = ReactNativeDelegate()
     let factory = RCTReactNativeFactory(delegate: delegate)
