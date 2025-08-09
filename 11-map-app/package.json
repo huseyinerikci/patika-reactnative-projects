@@ -16,6 +16,7 @@
     "react-native": "0.80.2",
     "react-native-config": "^1.5.6",
     "react-native-maps": "^1.25.0",
+    "react-native-modal": "^14.0.0-rc.1",
     "react-native-onesignal": "^5.2.13"
   },
   "devDependencies": {
