@@ -73,3 +73,7 @@ yarn-error.log
 !.yarn/releases
 !.yarn/sdks
 !.yarn/versions
+
+# Firebase/Google API keys (do not commit sensitive files)
+ios/GoogleService-Info.plist
+android/app/google-services.json
