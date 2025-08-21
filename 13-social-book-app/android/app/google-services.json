@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "579205206195",
+    "project_id": "socialbook-cb11e",
+    "storage_bucket": "socialbook-cb11e.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:579205206195:android:dbcfc6f5a3447f7283e0c6",
+        "android_client_info": {
+          "package_name": "com.socialbookapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC6ULEJ7eaoVu3LAr-cIYPGVLSoO70X0kg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
