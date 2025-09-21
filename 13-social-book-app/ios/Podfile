@@ -6,10 +6,11 @@ require Pod::Executable.execute_command('node', ['-p',
   )', __dir__]).strip
 
 platform :ios, min_ios_version_supported
-prepare_react_native_project!
 
-use_frameworks!
+use_frameworks! :linkage => :static
 use_modular_headers!
+
+prepare_react_native_project!
 
 linkage = ENV['USE_FRAMEWORKS']
 if linkage != nil
@@ -17,19 +18,14 @@ if linkage != nil
   use_frameworks! :linkage => linkage.to_sym
 end
 
-target 'socialBookApp' do
+target 'socialBook' do
   config = use_native_modules!
-
-  # use_frameworks! :linkage => :static
 
   use_react_native!(
     :path => config[:reactNativePath],
     # An absolute path to your application root.
     :app_path => "#{Pod::Config.instance.installation_root}/.."
   )
-
-  # Ensure RNVectorIcons is linked explicitly (useful when migration model changes)
-  pod 'RNVectorIcons', :path => '../node_modules/react-native-vector-icons'
 
   post_install do |installer|
     # https://github.com/facebook/react-native/blob/main/packages/react-native/scripts/react_native_pods.rb#L197-L202
