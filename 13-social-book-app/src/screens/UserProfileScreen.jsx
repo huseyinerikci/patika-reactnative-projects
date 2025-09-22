@@ -10,6 +10,10 @@ import {
 } from 'react-native';
 import firestore from '@react-native-firebase/firestore';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import Tabs from '../components/Tabs';
+import PostCard from '../components/PostCard';
+import LoadingIndicator from '../components/LoadingIndicator';
+import EmptyState from '../components/EmptyState';
 import { useAuth } from '../context/AuthContext';
 
 const BookCard = ({ book, onAddToFavorites, isAlreadyFavorite }) => (
@@ -38,48 +42,6 @@ const BookCard = ({ book, onAddToFavorites, isAlreadyFavorite }) => (
     </TouchableOpacity>
   </View>
 );
-
-const PostCard = ({ post }) => {
-  const [likeCount, setLikeCount] = useState(post.likes || 0);
-
-  useEffect(() => {
-    // Gerçek zamanlı beğeni sayısını dinle
-    const unsubscribe = firestore()
-      .collection('posts')
-      .doc(post.id)
-      .onSnapshot(doc => {
-        if (doc.exists) {
-          const data = doc.data();
-          setLikeCount(data.likes || 0);
-        }
-      });
-
-    return unsubscribe;
-  }, [post.id]);
-
-  return (
-    <View style={styles.postCard}>
-      {post.bookTitle && (
-        <View style={styles.postBookInfo}>
-          <Text style={styles.postBookTitle}>{post.bookTitle}</Text>
-          <Text style={styles.postBookAuthor}>Yazar: {post.bookAuthor}</Text>
-        </View>
-      )}
-      <Text style={styles.postContent}>{post.content}</Text>
-      <View style={styles.postFooter}>
-        <Text style={styles.postDate}>
-          {post.createdAt?.toDate().toLocaleDateString('tr-TR')}
-        </Text>
-        <View style={styles.postStats}>
-          <View style={styles.statItem}>
-            <Icon name="favorite" size={16} color="#EF4444" />
-            <Text style={styles.statText}>{likeCount}</Text>
-          </View>
-        </View>
-      </View>
-    </View>
-  );
-};
 
 const UserProfileScreen = ({ route, navigation }) => {
   const { userId } = route.params;
@@ -168,6 +130,11 @@ const UserProfileScreen = ({ route, navigation }) => {
   };
 
   const fetchMyFavoriteBooks = async () => {
+    if (!user) {
+      setMyFavoriteBooks([]);
+      setLoading(false);
+      return;
+    }
     try {
       const myDoc = await firestore().collection('users').doc(user.uid).get();
       if (myDoc.exists) {
@@ -232,12 +199,7 @@ const UserProfileScreen = ({ route, navigation }) => {
   };
 
   if (loading) {
-    return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#6366F1" />
-        <Text style={styles.loadingText}>Profil yükleniyor...</Text>
-      </View>
-    );
+    return <LoadingIndicator />;
   }
 
   if (!userProfile) {
@@ -280,45 +242,14 @@ const UserProfileScreen = ({ route, navigation }) => {
         </View>
       </View>
 
-      <View style={styles.tabsContainer}>
-        <TouchableOpacity
-          style={[styles.tab, activeTab === 'books' && styles.activeTab]}
-          onPress={() => setActiveTab('books')}
-        >
-          <Icon
-            name="library-books"
-            size={24}
-            color={activeTab === 'books' ? '#6366F1' : '#9CA3AF'}
-          />
-          <Text
-            style={[
-              styles.tabText,
-              activeTab === 'books' && styles.activeTabText,
-            ]}
-          >
-            Favori Kitaplar
-          </Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={[styles.tab, activeTab === 'posts' && styles.activeTab]}
-          onPress={() => setActiveTab('posts')}
-        >
-          <Icon
-            name="article"
-            size={24}
-            color={activeTab === 'posts' ? '#6366F1' : '#9CA3AF'}
-          />
-          <Text
-            style={[
-              styles.tabText,
-              activeTab === 'posts' && styles.activeTabText,
-            ]}
-          >
-            Gönderileri
-          </Text>
-        </TouchableOpacity>
-      </View>
+      <Tabs
+        tabs={[
+          { key: 'books', label: 'Favori Kitaplar' },
+          { key: 'posts', label: 'Gönderileri' },
+        ]}
+        activeTab={activeTab}
+        onTabPress={setActiveTab}
+      />
 
       <View style={styles.content}>
         {activeTab === 'books' ? (

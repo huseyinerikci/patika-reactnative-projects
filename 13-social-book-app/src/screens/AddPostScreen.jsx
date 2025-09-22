@@ -111,7 +111,6 @@ const AddPostScreen = ({ navigation }) => {
 
       await firestore().collection('posts').add(postData);
 
-      // Kitap bilgisi varsa favori kitaplara ekleme seçeneği sun
       if (bookTitle.trim() && bookAuthor.trim()) {
         Alert.alert(
           'Gönderi Paylaşıldı',

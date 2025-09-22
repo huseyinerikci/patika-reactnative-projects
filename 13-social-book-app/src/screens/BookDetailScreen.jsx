@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useFocusEffect } from '@react-navigation/native';
 import {
   View,
   Text,
@@ -10,22 +11,80 @@ import {
 } from 'react-native';
 import firestore from '@react-native-firebase/firestore';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import PostCard from '../components/PostCard';
+import LoadingIndicator from '../components/LoadingIndicator';
+import EmptyState from '../components/EmptyState';
 import { useAuth } from '../context/AuthContext';
 
 const BookDetailScreen = ({ route, navigation }) => {
   const { book, user: bookOwner } = route.params;
   const [loading, setLoading] = useState(false);
+  if (loading && relatedPosts.length === 0 && allUsersWithBook.length === 0) {
+    return <LoadingIndicator />;
+  }
   const [isInMyFavorites, setIsInMyFavorites] = useState(false);
   const [relatedPosts, setRelatedPosts] = useState([]);
   const [allUsersWithBook, setAllUsersWithBook] = useState([]);
 
-  const { user, userData } = useAuth();
+  const { user, userData, setUserData } = useAuth();
 
-  useEffect(() => {
-    checkIfInMyFavorites();
-    fetchRelatedPosts();
-    fetchUsersWithBook();
-  }, []);
+  useFocusEffect(
+    React.useCallback(() => {
+      fetchRelatedPosts();
+      fetchUsersWithBook();
+      checkIfInMyFavorites();
+    }, [userData?.favoriteBooks]),
+  );
+  const handleRemoveFromFavorites = async () => {
+    if (!isInMyFavorites) {
+      Alert.alert('Bilgi', 'Bu kitap zaten favorilerinizde değil!');
+      return;
+    }
+
+    Alert.alert(
+      'Favorilerden Kaldır',
+      `"${book.title}" kitabını favorilerinizden kaldırmak istediğinizden emin misiniz?`,
+      [
+        {
+          text: 'İptal',
+          style: 'cancel',
+        },
+        {
+          text: 'Kaldır',
+          onPress: async () => {
+            setLoading(true);
+            try {
+              const bookToRemove = {
+                title: book.title,
+                author: book.author,
+                genre: book.genre,
+              };
+              await firestore()
+                .collection('users')
+                .doc(user.uid)
+                .update({
+                  favoriteBooks: firestore.FieldValue.arrayRemove(bookToRemove),
+                });
+              const userDoc = await firestore()
+                .collection('users')
+                .doc(user.uid)
+                .get();
+              if (userDoc.exists) {
+                setUserData(userDoc.data());
+              }
+              setIsInMyFavorites(false);
+              Alert.alert('Başarılı', 'Kitap favorilerinizden kaldırıldı!');
+            } catch (error) {
+              console.error('Remove from favorites error:', error);
+              Alert.alert('Hata', 'Kitap kaldırılırken bir hata oluştu.');
+            } finally {
+              setLoading(false);
+            }
+          },
+        },
+      ],
+    );
+  };
 
   const checkIfInMyFavorites = () => {
     if (userData?.favoriteBooks) {
@@ -111,7 +170,6 @@ const BookDetailScreen = ({ route, navigation }) => {
                 title: book.title,
                 author: book.author,
                 genre: book.genre,
-                addedAt: firestore.FieldValue.serverTimestamp(),
               };
 
               await firestore()
@@ -120,6 +178,13 @@ const BookDetailScreen = ({ route, navigation }) => {
                 .update({
                   favoriteBooks: firestore.FieldValue.arrayUnion(bookToAdd),
                 });
+              const userDoc = await firestore()
+                .collection('users')
+                .doc(user.uid)
+                .get();
+              if (userDoc.exists) {
+                setUserData(userDoc.data());
+              }
 
               setIsInMyFavorites(true);
               Alert.alert('Başarılı', 'Kitap favori listenize eklendi!');
@@ -132,57 +197,6 @@ const BookDetailScreen = ({ route, navigation }) => {
           },
         },
       ],
-    );
-  };
-
-  const PostCard = ({ post }) => {
-    const [likeCount, setLikeCount] = useState(post.likes || 0);
-
-    useEffect(() => {
-      // Gerçek zamanlı beğeni sayısını dinle
-      const unsubscribe = firestore()
-        .collection('posts')
-        .doc(post.id)
-        .onSnapshot(doc => {
-          if (doc.exists) {
-            const data = doc.data();
-            setLikeCount(data.likes || 0);
-          }
-        });
-
-      return unsubscribe;
-    }, [post.id]);
-
-    return (
-      <TouchableOpacity
-        style={styles.postCard}
-        onPress={() =>
-          navigation.navigate('UserProfile', { userId: post.userId })
-        }
-      >
-        <View style={styles.postHeader}>
-          <View style={styles.userAvatar}>
-            <Icon name="person" size={20} color="#6366F1" />
-          </View>
-          <View>
-            <Text style={styles.postUserName}>{post.userFullName}</Text>
-            <Text style={styles.postDate}>
-              {post.createdAt?.toDate().toLocaleDateString('tr-TR')}
-            </Text>
-          </View>
-        </View>
-        <Text style={styles.postContent} numberOfLines={3}>
-          {post.content}
-        </Text>
-        <View style={styles.postFooter}>
-          <View style={styles.postStats}>
-            <View style={styles.statItem}>
-              <Icon name="favorite" size={16} color="#EF4444" />
-              <Text style={styles.statText}>{likeCount}</Text>
-            </View>
-          </View>
-        </View>
-      </TouchableOpacity>
     );
   };
 
@@ -237,28 +251,40 @@ const BookDetailScreen = ({ route, navigation }) => {
       </View>
 
       <View style={styles.actionSection}>
-        <TouchableOpacity
-          style={[
-            styles.favoriteButton,
-            isInMyFavorites && styles.favoriteButtonAdded,
-            loading && styles.favoriteButtonDisabled,
-          ]}
-          onPress={handleAddToFavorites}
-          disabled={loading || isInMyFavorites}
-        >
-          {loading ? (
-            <ActivityIndicator size="small" color="#FFFFFF" />
-          ) : (
-            <Icon
-              name={isInMyFavorites ? 'check' : 'favorite-border'}
-              size={24}
-              color="#FFFFFF"
-            />
-          )}
-          <Text style={styles.favoriteButtonText}>
-            {isInMyFavorites ? 'Favorilerde' : 'Favorilere Ekle'}
-          </Text>
-        </TouchableOpacity>
+        {isInMyFavorites ? (
+          <TouchableOpacity
+            style={[
+              styles.favoriteButton,
+              styles.favoriteButtonAdded,
+              loading && styles.favoriteButtonDisabled,
+            ]}
+            onPress={handleRemoveFromFavorites}
+            disabled={loading}
+          >
+            {loading ? (
+              <ActivityIndicator size="small" color="#FFFFFF" />
+            ) : (
+              <Icon name="check" size={24} color="#FFFFFF" />
+            )}
+            <Text style={styles.favoriteButtonText}>Favorilerde (Kaldır)</Text>
+          </TouchableOpacity>
+        ) : (
+          <TouchableOpacity
+            style={[
+              styles.favoriteButton,
+              loading && styles.favoriteButtonDisabled,
+            ]}
+            onPress={handleAddToFavorites}
+            disabled={loading}
+          >
+            {loading ? (
+              <ActivityIndicator size="small" color="#FFFFFF" />
+            ) : (
+              <Icon name="favorite-border" size={24} color="#FFFFFF" />
+            )}
+            <Text style={styles.favoriteButtonText}>Favorilere Ekle</Text>
+          </TouchableOpacity>
+        )}
       </View>
 
       {allUsersWithBook.length > 0 && (

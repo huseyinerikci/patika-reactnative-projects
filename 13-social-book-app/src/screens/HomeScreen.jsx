@@ -12,141 +12,25 @@ import {
 } from 'react-native';
 import firestore from '@react-native-firebase/firestore';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import PostCard from '../components/PostCard';
+import LoadingIndicator from '../components/LoadingIndicator';
+import EmptyState from '../components/EmptyState';
 import { useAuth } from '../context/AuthContext';
 
-const { width } = Dimensions.get('window');
-
-const PostCard = ({ post, onUserPress, currentUserId }) => {
-  const [liked, setLiked] = useState(false);
-  const [likeCount, setLikeCount] = useState(0);
-  const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    // Real-time like takibi
-    const unsubscribe = firestore()
-      .collection('posts')
-      .doc(post.id)
-      .collection('likes')
-      .onSnapshot(snapshot => {
-        setLikeCount(snapshot.size);
-        setLiked(snapshot.docs.some(doc => doc.id === currentUserId));
-      });
-
-    return unsubscribe;
-  }, [post.id, currentUserId]);
-
-  const handleLike = async () => {
-    if (loading) return;
-    setLoading(true);
-
-    const likeRef = firestore()
-      .collection('posts')
-      .doc(post.id)
-      .collection('likes')
-      .doc(currentUserId);
-
-    try {
-      if (liked) {
-        await likeRef.delete();
-      } else {
-        await likeRef.set({
-          userId: currentUserId,
-          createdAt: firestore.FieldValue.serverTimestamp(),
-        });
-      }
-    } catch (err) {
-      console.error('Like error:', err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  return (
-    <View style={styles.postCard}>
-      <TouchableOpacity
-        style={styles.userInfo}
-        onPress={() => onUserPress(post.userId)}
-      >
-        <View style={styles.avatar}>
-          <Icon name="person" size={24} color="#6366F1" />
-        </View>
-        <View>
-          <Text style={styles.userName}>{post.userFullName}</Text>
-          <Text style={styles.postDate}>
-            {post.createdAt?.toDate().toLocaleDateString('tr-TR')}
-          </Text>
-        </View>
-      </TouchableOpacity>
-
-      {post.bookTitle && (
-        <View style={styles.bookInfo}>
-          <Icon name="book" size={20} color="#6366F1" />
-          <View style={styles.bookDetails}>
-            <Text style={styles.bookTitle}>{post.bookTitle}</Text>
-            <Text style={styles.bookAuthor}>Yazar: {post.bookAuthor}</Text>
-            {post.bookGenre && (
-              <Text style={styles.bookGenre}>Tür: {post.bookGenre}</Text>
-            )}
-          </View>
-        </View>
-      )}
-
-      <Text style={styles.postContent}>{post.content}</Text>
-      {post.imageUrl && (
-        <Image source={{ uri: post.imageUrl }} style={styles.postImage} />
-      )}
-
-      <View style={styles.postActions}>
-        <TouchableOpacity
-          style={[styles.actionButton, liked && styles.likedButton]}
-          onPress={handleLike}
-        >
-          {loading ? (
-            <ActivityIndicator
-              size="small"
-              color={liked ? '#EF4444' : '#666'}
-            />
-          ) : (
-            <Icon
-              name={liked ? 'favorite' : 'favorite-border'}
-              size={24}
-              color={liked ? '#EF4444' : '#666'}
-            />
-          )}
-          <Text style={[styles.actionText, liked && styles.likedText]}>
-            {likeCount}
-          </Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.actionButton}>
-          <Icon name="chat-bubble-outline" size={24} color="#666" />
-          <Text style={styles.actionText}>Yorum</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.actionButton}>
-          <Icon name="share" size={24} color="#666" />
-          <Text style={styles.actionText}>Paylaş</Text>
-        </TouchableOpacity>
-      </View>
-    </View>
-  );
-};
-
 const HomeScreen = ({ navigation }) => {
+  const { user } = useAuth();
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-  const { user } = useAuth();
 
   const fetchPosts = async () => {
+    setLoading(true);
     try {
-      const querySnapshot = await firestore()
+      const snapshot = await firestore()
         .collection('posts')
         .orderBy('createdAt', 'desc')
-        .limit(20)
         .get();
-
-      const postsData = querySnapshot.docs.map(doc => ({
+      const postsData = snapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data(),
       }));
@@ -173,13 +57,7 @@ const HomeScreen = ({ navigation }) => {
     else navigation.navigate('Profil');
   };
 
-  if (loading && !refreshing)
-    return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#6366F1" />
-        <Text style={styles.loadingText}>Gönderiler yükleniyor...</Text>
-      </View>
-    );
+  if (loading && !refreshing) return <LoadingIndicator />;
 
   return (
     <View style={styles.container}>
@@ -190,7 +68,7 @@ const HomeScreen = ({ navigation }) => {
           <PostCard
             post={item}
             onUserPress={handleUserPress}
-            currentUserId={user.uid}
+            currentUserId={user?.uid}
           />
         )}
         refreshControl={
@@ -201,20 +79,24 @@ const HomeScreen = ({ navigation }) => {
           />
         }
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.listContainer}
+        contentContainerStyle={
+          posts.length === 0 ? styles.emptyListContainer : styles.listContainer
+        }
         ListEmptyComponent={
-          <View style={styles.emptyContainer}>
-            <Icon name="library-books" size={80} color="#D1D5DB" />
-            <Text style={styles.emptyTitle}>Henüz gönderi yok</Text>
-            <Text style={styles.emptySubtitle}>
-              İlk gönderini paylaşmaya ne dersin?
-            </Text>
+          <View style={styles.emptyListWrapper}>
+            <EmptyState
+              icon="library-books"
+              title="Henüz gönderi yok"
+              subtitle="İlk gönderini paylaşmaya ne dersin?"
+            />
           </View>
         }
       />
     </View>
   );
 };
+
+const { width } = Dimensions.get('window');
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#F3F4F6' },
@@ -226,6 +108,19 @@ const styles = StyleSheet.create({
   },
   loadingText: { marginTop: 16, fontSize: 16, color: '#666' },
   listContainer: { padding: 16 },
+  emptyListContainer: {
+    flexGrow: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 16,
+    minHeight: 400,
+  },
+  emptyListWrapper: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: '100%',
+  },
   postCard: {
     backgroundColor: '#FFF',
     borderRadius: 16,

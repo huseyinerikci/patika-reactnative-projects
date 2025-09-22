@@ -12,76 +12,64 @@ import {
 import firestore from '@react-native-firebase/firestore';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { useAuth } from '../context/AuthContext';
+import UserCard from '../components/UserCard';
+import BookCard from '../components/BookCard';
 
-const UserCard = ({ user, onPress }) => (
-  <TouchableOpacity style={styles.userCard} onPress={() => onPress(user)}>
-    <View style={styles.avatar}>
-      <Icon name="person" size={24} color="#6366F1" />
-    </View>
-    <View style={styles.userInfo}>
-      <Text style={styles.userName}>{user.fullName}</Text>
-      <Text style={styles.userEmail}>{user.email}</Text>
-      <Text style={styles.bookCount}>
-        {user.favoriteBooks?.length || 0} favori kitap
-      </Text>
-    </View>
-    <Icon name="chevron-right" size={24} color="#9CA3AF" />
-  </TouchableOpacity>
-);
+const GENRES = [
+  'Tümü',
+  'Roman',
+  'Bilim Kurgu',
+  'Fantastik',
+  'Polisiye',
+  'Tarih',
+  'Biyografi',
+  'Şiir',
+  'Deneme',
+  'Felsefe',
+  'Psikoloji',
+  'Kişisel Gelişim',
+  'Çocuk Kitapları',
+];
 
-const BookCard = ({ book, user: bookUser, onUserPress, onBookPress }) => (
-  <View style={styles.bookCard}>
-    <TouchableOpacity
-      style={styles.bookHeader}
-      onPress={() => onUserPress(bookUser)}
-    >
-      <View style={styles.smallAvatar}>
-        <Icon name="person" size={16} color="#6366F1" />
-      </View>
-      <Text style={styles.bookOwner}>{bookUser.fullName}</Text>
-    </TouchableOpacity>
+function filterUsers(users, query) {
+  return users.filter(
+    userData =>
+      userData.fullName.toLowerCase().includes(query.toLowerCase()) ||
+      userData.email.toLowerCase().includes(query.toLowerCase()),
+  );
+}
 
-    <TouchableOpacity
-      style={styles.bookContent}
-      onPress={() => onBookPress(book, bookUser)}
-    >
-      <View style={styles.bookIcon}>
-        <Icon name="menu-book" size={20} color="#6366F1" />
-      </View>
-      <View style={styles.bookDetails}>
-        <Text style={styles.bookTitle}>{book.title}</Text>
-        <Text style={styles.bookAuthor}>Yazar: {book.author}</Text>
-        <Text style={styles.bookGenre}>Tür: {book.genre}</Text>
-      </View>
-    </TouchableOpacity>
-  </View>
-);
+function filterBooks(users, query, genreFilter) {
+  const results = [];
+  users.forEach(userData => {
+    if (userData.favoriteBooks && userData.favoriteBooks.length > 0) {
+      userData.favoriteBooks.forEach(book => {
+        const matchesQuery =
+          !query ||
+          book.title.toLowerCase().includes(query) ||
+          book.author.toLowerCase().includes(query);
+        const matchesGenre = !genreFilter || book.genre === genreFilter;
+        if (matchesQuery && matchesGenre) {
+          results.push({
+            ...book,
+            user: userData,
+            id: `${userData.id}-${book.title}-${book.author}`,
+          });
+        }
+      });
+    }
+  });
+  return results;
+}
 
 const SearchScreen = ({ navigation }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedGenre, setSelectedGenre] = useState('');
-  const [searchType, setSearchType] = useState('books'); // 'books' or 'users'
+  const [searchType, setSearchType] = useState('books');
   const [searchResults, setSearchResults] = useState([]);
   const [loading, setLoading] = useState(false);
   const [allUsers, setAllUsers] = useState([]);
-
   const { user } = useAuth();
-
-  const genres = [
-    'Tümü',
-    'Roman',
-    'Bilim Kurgu',
-    'Fantastik',
-    'Polisiye',
-    'Tarih',
-    'Biyografi',
-    'Şiir',
-    'Deneme',
-    'Felsefe',
-    'Psikoloji',
-    'Kişisel Gelişim',
-    'Çocuk Kitapları',
-  ];
 
   useEffect(() => {
     fetchAllUsers();
@@ -95,36 +83,36 @@ const SearchScreen = ({ navigation }) => {
     }
   }, [searchQuery, selectedGenre, searchType]);
 
+  // --- Data Fetching ---
   const fetchAllUsers = async () => {
     try {
       const querySnapshot = await firestore()
         .collection('users')
         .where('uid', '!=', user.uid)
         .get();
-
       const users = [];
       querySnapshot.forEach(doc => {
-        users.push({
-          id: doc.id,
-          ...doc.data(),
-        });
+        users.push({ id: doc.id, ...doc.data() });
       });
-
       setAllUsers(users);
     } catch (error) {
       console.error('Users fetch error:', error);
     }
   };
 
-  const performSearch = async () => {
+  // --- Search Logic ---
+  const performSearch = () => {
     if (!searchQuery.trim() && !selectedGenre) return;
-
     setLoading(true);
     try {
       if (searchType === 'users') {
-        searchUsers();
+        setSearchResults(filterUsers(allUsers, searchQuery));
       } else {
-        searchBooks();
+        const genreFilter =
+          selectedGenre && selectedGenre !== 'Tümü' ? selectedGenre : null;
+        setSearchResults(
+          filterBooks(allUsers, searchQuery.toLowerCase(), genreFilter),
+        );
       }
     } catch (error) {
       console.error('Search error:', error);
@@ -133,73 +121,29 @@ const SearchScreen = ({ navigation }) => {
     }
   };
 
-  const searchUsers = () => {
-    const filtered = allUsers.filter(
-      userData =>
-        userData.fullName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        userData.email.toLowerCase().includes(searchQuery.toLowerCase()),
-    );
-    setSearchResults(filtered);
-  };
-
-  const searchBooks = () => {
-    const results = [];
-    const query = searchQuery.toLowerCase();
-    const genreFilter =
-      selectedGenre && selectedGenre !== 'Tümü' ? selectedGenre : null;
-
-    allUsers.forEach(userData => {
-      if (userData.favoriteBooks && userData.favoriteBooks.length > 0) {
-        userData.favoriteBooks.forEach(book => {
-          const matchesQuery =
-            !query ||
-            book.title.toLowerCase().includes(query) ||
-            book.author.toLowerCase().includes(query);
-
-          const matchesGenre = !genreFilter || book.genre === genreFilter;
-
-          if (matchesQuery && matchesGenre) {
-            results.push({
-              ...book,
-              user: userData,
-              id: `${userData.id}-${book.title}-${book.author}`,
-            });
-          }
-        });
-      }
-    });
-
-    setSearchResults(results);
-  };
-
-  const handleUserPress = userData => {
+  // --- Handlers ---
+  const handleUserPress = userData =>
     navigation.navigate('UserProfile', { userId: userData.uid });
-  };
-
-  const handleBookPress = (book, bookUser) => {
+  const handleBookPress = (book, bookUser) =>
     navigation.navigate('BookDetail', { book, user: bookUser });
-  };
-
   const clearSearch = () => {
     setSearchQuery('');
     setSelectedGenre('');
     setSearchResults([]);
   };
 
-  const renderSearchResult = ({ item }) => {
-    if (searchType === 'users') {
-      return <UserCard user={item} onPress={handleUserPress} />;
-    } else {
-      return (
-        <BookCard
-          book={item}
-          user={item.user}
-          onUserPress={handleUserPress}
-          onBookPress={handleBookPress}
-        />
-      );
-    }
-  };
+  // --- Render Functions ---
+  const renderSearchResult = ({ item }) =>
+    searchType === 'users' ? (
+      <UserCard user={item} onPress={handleUserPress} />
+    ) : (
+      <BookCard
+        book={item}
+        user={item.user}
+        onUserPress={handleUserPress}
+        onBookPress={handleBookPress}
+      />
+    );
 
   return (
     <View style={styles.container}>
@@ -278,7 +222,7 @@ const SearchScreen = ({ navigation }) => {
         {searchType === 'books' && (
           <View style={styles.genreContainer}>
             <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-              {genres.map(genre => (
+              {GENRES.map(genre => (
                 <TouchableOpacity
                   key={genre}
                   style={[
