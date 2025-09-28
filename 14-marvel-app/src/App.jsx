@@ -1,9 +1,9 @@
 import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
-import AuthNavigator from './navigation/AuthNavigator';
 import { Provider } from 'react-redux';
 import { PersistGate } from 'redux-persist/integration/react';
 import { store, persistor } from './store/index';
+import AppNavigator from './navigation/AppNavigator';
 
 const App = () => {
   return (
@@ -11,7 +11,7 @@ const App = () => {
       {/* kayıtlı verileri yükler */}
       <PersistGate loading={null} persistor={persistor}>
         <NavigationContainer>
-          <AuthNavigator />
+          <AppNavigator />
         </NavigationContainer>
       </PersistGate>
     </Provider>

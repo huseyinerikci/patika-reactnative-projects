@@ -1,6 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { persistStore, persistReducer } from 'redux-persist';
 import authReducer from './authSlice';
+import charactersReducer from './charactersSlice';
 import { configureStore } from '@reduxjs/toolkit';
 
 const persistConfig = {
@@ -15,6 +16,7 @@ const persistAuthReducer = persistReducer(persistConfig, authReducer);
 export const store = configureStore({
   reducer: {
     auth: persistAuthReducer,
+    characters: charactersReducer,
   },
 
   // Persist için gerekli middleware ayarları
