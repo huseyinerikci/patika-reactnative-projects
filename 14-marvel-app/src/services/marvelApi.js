@@ -30,7 +30,6 @@ api.interceptors.request.use(config => {
     ...config.params,
     ...authParams,
   };
-  console.log('Marvel API Request:', config.url, config.params);
   return config;
 });
 

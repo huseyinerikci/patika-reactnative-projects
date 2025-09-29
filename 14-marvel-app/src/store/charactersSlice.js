@@ -3,12 +3,12 @@ import { marvelApi } from '../services/marvelApi';
 
 export const fetchCharacters = createAsyncThunk(
   'characters/fetchCharacters',
-  async ({ limit = 20, offset = 0, nameStartsWith = '' }) => {
-    const response = await marvelApi.getCharacters({
-      limit,
-      offset,
-      nameStartsWith,
-    });
+  async ({ limit = 20, offset = 0, nameStartsWith }) => {
+    const params = { limit, offset };
+    if (nameStartsWith && nameStartsWith.trim() !== '') {
+      params.nameStartsWith = nameStartsWith;
+    }
+    const response = await marvelApi.getCharacters(params);
     return response;
   },
 );

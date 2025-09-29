@@ -25,42 +25,51 @@ const CharactersScreen = () => {
   const [searchText, setSearchText] = useState('');
   const [page, setPage] = useState(0);
 
+  // Tek yerde parametreleri kur
+  const buildParams = (page, text) => {
+    const params = {
+      limit: 20,
+      offset: page * 20,
+    };
+    if (text && text.length >= 2) {
+      params.nameStartsWith = text;
+    }
+    return params;
+  };
+
   useEffect(() => {
     loadInitialCharacters();
-  }, [dispatch]);
+  }, []);
 
   // İlk karakterleri yükle
   const loadInitialCharacters = () => {
-    dispatch(fetchCharacters({ limit: 20, offset: 0 }));
+    dispatch(fetchCharacters(buildParams(0, '')));
     setPage(0);
   };
+
   // Arama fonksiyonu
   const handleSearch = text => {
     setSearchText(text);
     setPage(0);
-
-    if (text.length >= 2 || text.length === 0) {
-      dispatch(fetchCharacters({ limit: 20, offset: 0, nameStartsWith: text }));
-    }
+    dispatch(fetchCharacters(buildParams(0, text)));
   };
+
   // Daha fazla karakter yükle (pagination)
   const loadMore = () => {
     if (!loading && hasMore) {
       const newPage = page + 1;
       setPage(newPage);
-      dispatch(
-        fetchCharacters({
-          limit: 20,
-          offset: newPage * 20,
-          nameStartsWith: searchText,
-        }),
-      );
+      dispatch(fetchCharacters(buildParams(newPage, searchText)));
     }
   };
 
   // Karakter render fonksiyonu
   const renderCharacter = ({ item }) => {
-    const imageUrl = `${item.thumbnail.path}.${item.thumbnail.extension}`;
+    const imageUrl =
+      `${item.thumbnail.path}.${item.thumbnail.extension}`.replace(
+        'http://',
+        'https://',
+      );
     return (
       <TouchableOpacity style={styles.characterCard}>
         <FastImage
@@ -82,7 +91,8 @@ const CharactersScreen = () => {
       </TouchableOpacity>
     );
   };
-  //loading footer
+
+  // loading footer
   const renderFooter = () => {
     if (!loading) return null;
     return (
@@ -91,6 +101,7 @@ const CharactersScreen = () => {
       </View>
     );
   };
+
   if (error) {
     return (
       <LinearGradient colors={['#1a1a2e', '#16213e']} style={styles.container}>
@@ -107,6 +118,7 @@ const CharactersScreen = () => {
       </LinearGradient>
     );
   }
+
   return (
     <LinearGradient colors={['#1a1a2e', '#16213e']} style={styles.container}>
       <View style={styles.header}>
