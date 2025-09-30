@@ -17,7 +17,7 @@ import FastImage from 'react-native-fast-image';
 
 const { width } = Dimensions.get('window');
 
-const CharactersScreen = () => {
+const CharactersScreen = ({ navigation }) => {
   const dispatch = useDispatch();
   const { characters, loading, hasMore, error } = useSelector(
     state => state.characters,
@@ -71,7 +71,12 @@ const CharactersScreen = () => {
         'https://',
       );
     return (
-      <TouchableOpacity style={styles.characterCard}>
+      <TouchableOpacity
+        style={styles.characterCard}
+        onPress={() =>
+          navigation.navigate('CharacterDetail', { characterId: item.id })
+        }
+      >
         <FastImage
           source={{ uri: imageUrl }}
           style={styles.characterImage}

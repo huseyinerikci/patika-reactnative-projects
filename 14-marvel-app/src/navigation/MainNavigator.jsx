@@ -1,4 +1,3 @@
-import { View, Text } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import React from 'react';
 import Icon from 'react-native-vector-icons/MaterialIcons';
@@ -6,8 +5,29 @@ import CharactersScreen from '../screens/main/CharactersScreen';
 import ComicsScreen from '../screens/main/ComicsScreen';
 import FavoritesScreen from '../screens/main/FavoritesScreen';
 import ProfileScreen from '../screens/main/ProfileScreen';
+import { createStackNavigator } from '@react-navigation/stack';
+import CharacterDetailScreen from '../screens/detail/CharacterDetailScreen';
+import ComicDetailScreen from '../screens/detail/ComicDetailScreen';
 
 const Tab = createBottomTabNavigator();
+const Stack = createStackNavigator();
+
+const CharactersStack = () => {
+  return (
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="CharactersList" component={CharactersScreen} />
+      <Stack.Screen name="CharacterDetail" component={CharacterDetailScreen} />
+    </Stack.Navigator>
+  );
+};
+const ComicsStack = () => {
+  return (
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="ComicsList" component={ComicsScreen} />
+      <Stack.Screen name="ComicDetail" component={ComicDetailScreen} />
+    </Stack.Navigator>
+  );
+};
 
 const MainNavigator = () => {
   return (
@@ -45,8 +65,8 @@ const MainNavigator = () => {
         },
       })}
     >
-      <Tab.Screen name="Characters" component={CharactersScreen} />
-      <Tab.Screen name="Comics" component={ComicsScreen} />
+      <Tab.Screen name="Characters" component={CharactersStack} />
+      <Tab.Screen name="Comics" component={ComicsStack} />
       <Tab.Screen name="Favorites" component={FavoritesScreen} />
       <Tab.Screen name="Profile" component={ProfileScreen} />
     </Tab.Navigator>

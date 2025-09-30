@@ -17,7 +17,7 @@ import FastImage from 'react-native-fast-image';
 
 const { width } = Dimensions.get('window');
 
-const ComicsScreen = () => {
+const ComicsScreen = ({ navigation }) => {
   const dispatch = useDispatch();
   const { comics, loading, hasMore } = useSelector(state => state.comics);
   const [searchText, setSearchText] = useState('');
@@ -58,7 +58,10 @@ const ComicsScreen = () => {
         'https://',
       );
     return (
-      <TouchableOpacity style={styles.comicCard}>
+      <TouchableOpacity
+        style={styles.comicCard}
+        onPress={() => navigation.navigate('ComicDetail', { comicId: item.id })}
+      >
         <FastImage
           source={{ uri: imageUrl }}
           style={styles.comicImage}
