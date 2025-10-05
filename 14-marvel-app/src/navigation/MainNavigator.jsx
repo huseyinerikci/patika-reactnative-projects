@@ -29,6 +29,16 @@ const ComicsStack = () => {
   );
 };
 
+const FavoritesStack = () => {
+  return (
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="FavoritesList" component={FavoritesScreen} />
+      <Stack.Screen name="CharacterDetail" component={CharacterDetailScreen} />
+      <Stack.Screen name="ComicDetail" component={ComicDetailScreen} />
+    </Stack.Navigator>
+  );
+};
+
 const MainNavigator = () => {
   return (
     <Tab.Navigator
@@ -67,7 +77,7 @@ const MainNavigator = () => {
     >
       <Tab.Screen name="Characters" component={CharactersStack} />
       <Tab.Screen name="Comics" component={ComicsStack} />
-      <Tab.Screen name="Favorites" component={FavoritesScreen} />
+      <Tab.Screen name="Favorites" component={FavoritesStack} />
       <Tab.Screen name="Profile" component={ProfileScreen} />
     </Tab.Navigator>
   );

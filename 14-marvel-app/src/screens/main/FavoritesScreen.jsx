@@ -14,11 +14,11 @@ import FastImage from 'react-native-fast-image';
 
 const { width } = Dimensions.get('window');
 
-const FavoritesScreen = () => {
+const FavoritesScreen = ({ navigation }) => {
   const { favoriteCharacters, favoriteComics } = useSelector(
     state => state.favorites,
   );
-  const [activeTab, setActiveTab] = useState('characterss');
+  const [activeTab, setActiveTab] = useState('characters');
 
   const renderCharacter = ({ item }) => {
     const imageUrl =
@@ -27,7 +27,14 @@ const FavoritesScreen = () => {
         'https://',
       );
     return (
-      <TouchableOpacity style={styles.itemCard}>
+      <TouchableOpacity
+        style={styles.itemCard}
+        onPress={() =>
+          navigation.navigate('CharacterDetail', {
+            characterId: item.id,
+          })
+        }
+      >
         <FastImage
           source={{ uri: imageUrl }}
           style={styles.itemImage}
@@ -37,7 +44,7 @@ const FavoritesScreen = () => {
           colors={['transparent', 'rgba(0,0,0,0.8)']}
           style={styles.itemOverlay}
         >
-          <Text style={styles.itemName} numberOfLines={2}>
+          <Text style={styles.itemName} numberOfLines={2} ellipsizeMode="tail">
             {item.name}
           </Text>
         </LinearGradient>
@@ -52,7 +59,10 @@ const FavoritesScreen = () => {
         'https://',
       );
     return (
-      <TouchableOpacity style={styles.itemCard}>
+      <TouchableOpacity
+        style={styles.itemCard}
+        onPress={() => navigation.navigate('ComicDetail', { comicId: item.id })}
+      >
         <FastImage
           source={{ uri: imageUrl }}
           style={styles.itemImage}
@@ -62,15 +72,15 @@ const FavoritesScreen = () => {
           colors={['transparent', 'rgba(0,0,0,0.8)']}
           style={styles.itemOverlay}
         >
-          <Text style={styles.itemName} numberOfLines={2}>
-            {item.name}
+          <Text style={styles.itemName} numberOfLines={2} ellipsizeMode="tail">
+            {item.title}
           </Text>
         </LinearGradient>
       </TouchableOpacity>
     );
   };
 
-  const EmptyComponent = () => {
+  const EmptyComponent = () => (
     <View style={styles.emptyContainer}>
       <Icon name="favorite-border" size={80} color="#8e8e93" />
       <Text style={styles.emptyTitle}>Henüz favori eklememişsin</Text>
@@ -79,8 +89,8 @@ const FavoritesScreen = () => {
           ? 'Karakterleri keşfet ve favorilerine ekle'
           : 'Çizgi romanları keşfet ve favorilerine ekle'}
       </Text>
-    </View>;
-  };
+    </View>
+  );
 
   return (
     <LinearGradient colors={['#1a1a2e', '#16213e']} style={styles.container}>
@@ -198,11 +208,15 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     padding: 15,
+    height: 100,
+    justifyContent: 'center',
+    alignItems: 'flex-start',
   },
   itemName: {
     fontSize: 16,
     fontWeight: 'bold',
     color: '#fff',
+    lineHeight: 20,
   },
   emptyContainer: {
     alignItems: 'center',
