@@ -1,97 +1,45 @@
-This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
+# 🧩 Trivia Challenge App
 
-# Getting Started
+**Trivia Challenge** is a question-and-answer quiz app built with **React Native**.  
+It allows users to test their knowledge across different categories, difficulties, and question types — all in an interactive and timed game format.
 
-> **Note**: Make sure you have completed the [Set Up Your Environment](https://reactnative.dev/docs/set-up-your-environment) guide before proceeding.
+![Demo](./public/trivia-app.gif)
 
-## Step 1: Start Metro
+---
 
-First, you will need to run **Metro**, the JavaScript build tool for React Native.
+## Requirements Implemented
 
-To start the Metro dev server, run the following command from the root of your React Native project:
+- The home screen displays the **highest score** and a **Start Game** button.
+- By default, a game starts with **10 True/False questions**.
+- Before starting, the user can open **Settings** to customize:
+  - Difficulty level (Easy, Medium, Hard)
+  - Question type (True/False or Multiple Choice)
+  - Question category (Sports, History, Science, etc.)
+- Each question has a **12-second timer**.
+  - When time runs out, the question is marked as incorrect and the next one appears automatically.
+- After completing all questions:
+  - The app shows the **final score**, number of correct and incorrect answers.
+  - The **highest score** is saved and displayed when the user returns.
 
-```sh
-# Using npm
-npm start
+---
 
-# OR using Yarn
-yarn start
-```
+## ⚙️ Features
 
-## Step 2: Build and run your app
+- 🏠 Home screen with highest score tracking
+- ⚙️ Settings screen for game customization
+- 🧠 10-question quiz gameplay with a 12-second timer per question
+- ✅ Result screen showing detailed performance stats
+- 💾 Firebase integration for storing and retrieving the highest score
+- 🔄 Smooth screen transitions using React Navigation
+- 🎨 Simple, clean, and responsive UI
 
-With Metro running, open a new terminal window/pane from the root of your React Native project, and use one of the following commands to build and run your Android or iOS app:
+---
 
-### Android
+## 🛠️ Tech Stack
 
-```sh
-# Using npm
-npm run android
-
-# OR using Yarn
-yarn android
-```
-
-### iOS
-
-For iOS, remember to install CocoaPods dependencies (this only needs to be run on first clone or after updating native deps).
-
-The first time you create a new project, run the Ruby bundler to install CocoaPods itself:
-
-```sh
-bundle install
-```
-
-Then, and every time you update your native dependencies, run:
-
-```sh
-bundle exec pod install
-```
-
-For more information, please visit [CocoaPods Getting Started guide](https://guides.cocoapods.org/using/getting-started.html).
-
-```sh
-# Using npm
-npm run ios
-
-# OR using Yarn
-yarn ios
-```
-
-If everything is set up correctly, you should see your new app running in the Android Emulator, iOS Simulator, or your connected device.
-
-This is one way to run your app — you can also build it directly from Android Studio or Xcode.
-
-## Step 3: Modify your app
-
-Now that you have successfully run the app, let's make changes!
-
-Open `App.tsx` in your text editor of choice and make some changes. When you save, your app will automatically update and reflect these changes — this is powered by [Fast Refresh](https://reactnative.dev/docs/fast-refresh).
-
-When you want to forcefully reload, for example to reset the state of your app, you can perform a full reload:
-
-- **Android**: Press the <kbd>R</kbd> key twice or select **"Reload"** from the **Dev Menu**, accessed via <kbd>Ctrl</kbd> + <kbd>M</kbd> (Windows/Linux) or <kbd>Cmd ⌘</kbd> + <kbd>M</kbd> (macOS).
-- **iOS**: Press <kbd>R</kbd> in iOS Simulator.
-
-## Congratulations! :tada:
-
-You've successfully run and modified your React Native App. :partying_face:
-
-### Now what?
-
-- If you want to add this new React Native code to an existing application, check out the [Integration guide](https://reactnative.dev/docs/integration-with-existing-apps).
-- If you're curious to learn more about React Native, check out the [docs](https://reactnative.dev/docs/getting-started).
-
-# Troubleshooting
-
-If you're having issues getting the above steps to work, see the [Troubleshooting](https://reactnative.dev/docs/troubleshooting) page.
-
-# Learn More
-
-To learn more about React Native, take a look at the following resources:
-
-- [React Native Website](https://reactnative.dev) - learn more about React Native.
-- [Getting Started](https://reactnative.dev/docs/environment-setup) - an **overview** of React Native and how setup your environment.
-- [Learn the Basics](https://reactnative.dev/docs/getting-started) - a **guided tour** of the React Native **basics**.
-- [Blog](https://reactnative.dev/blog) - read the latest official React Native **Blog** posts.
-- [`@facebook/react-native`](https://github.com/facebook/react-native) - the Open Source; GitHub **repository** for React Native.
+- **React Native**
+- **React Navigation**
+- **Firebase (Realtime Database / Firestore)**
+- **Open Trivia API** → [https://opentdb.com](https://opentdb.com)
+- **Animated API (React Native Animations)**
+- **Safe Area Context**

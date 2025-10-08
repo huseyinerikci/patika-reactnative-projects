@@ -1,22 +1,33 @@
-import database from '@react-native-firebase/database';
-export const db = database();
+import { getApp } from '@react-native-firebase/app';
+import {
+  getDatabase,
+  ref,
+  set,
+  get,
+  child,
+} from '@react-native-firebase/database';
 
-//High score kaydetme
+// Database bağlantısını oluştur
+const app = getApp();
+const db = getDatabase(app);
+
+// High score kaydetme
 export const saveHighScore = async score => {
   try {
-    await db.ref('/highScore').set(score);
+    await set(ref(db, '/highScore'), score);
     console.log('High score kaydedildi:', score);
   } catch (error) {
     console.error('Kaydetme hatası:', error);
   }
 };
-//high score okuma
+
+// High score okuma
 export const getHighScore = async () => {
   try {
-    const snapshot = await db.ref('/highScore').once('value');
-    return snapshot.val() || 0;
+    const snapshot = await get(child(ref(db), '/highScore'));
+    return snapshot.exists() ? snapshot.val() : 0;
   } catch (error) {
-    console.error('Okuma Hatası', error);
+    console.error('Okuma hatası:', error);
     return 0;
   }
 };

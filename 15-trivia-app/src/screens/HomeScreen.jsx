@@ -1,11 +1,5 @@
-import {
-  View,
-  Text,
-  StyleSheet,
-  Animated,
-  SafeAreaView,
-  StatusBar,
-} from 'react-native';
+import { View, Text, StyleSheet, Animated, StatusBar } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import React, { useEffect, useState } from 'react';
 import { getHighScore } from '../config/firebase';
 import { colors } from '../config/colors';
@@ -16,8 +10,8 @@ const HomeScreen = ({ navigation }) => {
   const [highScore, setHighScore] = useState(0);
   const [loading, setLoading] = useState(true);
 
-  const fadeAnim = new Animated.Value(0);
-  const scaleAnim = new Animated.Value(0.8);
+  const fadeAnim = new Animated.Value(1);
+  const scaleAnim = new Animated.Value(0.5);
 
   useEffect(() => {
     loadingHighScore();
