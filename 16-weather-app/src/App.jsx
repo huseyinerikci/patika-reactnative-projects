@@ -22,6 +22,7 @@ import {
   getReverseGeocoding,
   getWeatherByCoordinates,
 } from './services/weatherService';
+import WeatherDetail from './components/WeatherDetail';
 
 const { height } = Dimensions.get('window');
 
@@ -156,7 +157,6 @@ const App = () => {
         >
           {/* Konum */}
           <View style={styles.locationContainer}>
-            <Text style={styles.locationIcon}>📍</Text>
             <Text style={styles.locationText}>
               {locationInfo?.city || 'Konum Belirlenemedi'}
             </Text>
@@ -185,6 +185,36 @@ const App = () => {
 
           <Text style={styles.feelTemp}>
             Hissedilen {Math.round(weatherData?.main.feels_like)}°
+          </Text>
+
+          {/* Detay kartlar */}
+
+          <View style={styles.detailsContainer}>
+            <WeatherDetail
+              icon="💧"
+              label="Nem"
+              value={`${weatherData.main.humidity}%`}
+            />
+            <WeatherDetail
+              icon="🌡️"
+              label="Basınç"
+              value={`${weatherData.main.pressure} hPa`}
+            />
+          </View>
+          <View style={styles.detailsContainer}>
+            <WeatherDetail
+              icon="💨"
+              label="Rüzgar"
+              value={`${Math.round(weatherData.wind.speed * 3.6)} km/h`}
+            />
+            <WeatherDetail
+              icon="👁️"
+              label="Görüş Mesafesi"
+              value={`${(weatherData.visibility / 1000).toFixed(1)} km`}
+            />
+          </View>
+          <Text style={styles.refreshHint}>
+            Aşağı kaydırarak farklı bir şehir görüntüleyin
           </Text>
         </ScrollView>
       </SafeAreaView>
@@ -233,10 +263,6 @@ const styles = StyleSheet.create({
   locationContainer: {
     alignItems: 'center',
     marginTop: 30,
-  },
-  locationIcon: {
-    fontSize: 32,
-    marginBottom: 8,
   },
   locationText: {
     fontSize: 28,
@@ -287,6 +313,19 @@ const styles = StyleSheet.create({
     color: colors.text.secondary,
     textAlign: 'center',
     marginTop: 8,
+  },
+  detailsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginTop: 30,
+    flexWrap: 'wrap',
+  },
+  refreshHint: {
+    fontSize: 14,
+    color: colors.text.secondary,
+    textAlign: 'center',
+    marginTop: 30,
+    fontStyle: 'italic',
   },
 });
 export default App;

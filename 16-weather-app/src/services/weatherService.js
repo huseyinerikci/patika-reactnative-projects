@@ -36,6 +36,7 @@ export const getRandomCityWeather = async () => {
     { name: 'Konya', lat: 37.8667, lon: 32.4833 },
     { name: 'Trabzon', lat: 41.0015, lon: 39.7178 },
     { name: 'Bodrum', lat: 37.0344, lon: 27.4305 },
+    { name: 'Niğde', lat: 37.9694, lon: 34.6794 },
   ];
 
   const randomIndex = Math.floor(Math.random() * cities.length);

@@ -1,55 +1,55 @@
 export const colors = {
   // Ana renkler
-  primary: '#6C63FF',
-  secondary: '#FF6584',
+  primary: '#5A5FF0',
+  secondary: '#FF6B81',
   text: {
     primary: '#FFFFFF',
-    secondary: 'rgba(255, 255, 255, 0.8)',
-    dark: '#2D3436',
+    secondary: 'rgba(255, 255, 255, 0.9)',
+    dark: '#1C1C27',
   },
 
   // Hava durumu gradient renkleri
   weather: {
     clear: {
-      start: '#FF9A56',
-      end: '#FF6B9D',
+      start: '#FFB347',
+      end: '#FF7E5F',
     },
     clouds: {
-      start: '#7F8C9B',
-      end: '#A8B8C8',
+      start: '#6C7A89',
+      end: '#95A5A6',
     },
     rain: {
-      start: '#4A5C6A',
-      end: '#6B8299',
+      start: '#3A6073',
+      end: '#3A7BD5',
     },
     thunderstorm: {
-      start: '#2C3E50',
-      end: '#4A5C6A',
+      start: '#283E51',
+      end: '#485563',
     },
     snow: {
-      start: '#B8C6DB',
-      end: '#F5F7FA',
+      start: '#E0EAFC',
+      end: '#CFDEF3',
     },
     mist: {
-      start: '#9FA4A9',
-      end: '#BDC3C7',
+      start: '#B4B9BE',
+      end: '#D3D8DC',
     },
     default: {
-      start: '#6C63FF',
-      end: '#A855F7',
+      start: '#5A5FF0',
+      end: '#7A60FF',
     },
   },
 
   // Detay kartları için renkler
   card: {
-    background: 'rgba(255, 255, 255, 0.15)',
-    border: 'rgba(255, 255, 255, 0.2)',
+    background: 'rgba(255, 255, 255, 0.25)',
+    border: 'rgba(255, 255, 255, 0.35)',
   },
 
   // Durum renkleri
-  success: '#00D09C',
-  warning: '#FFB800',
-  error: '#FF5252',
+  success: '#00C48C',
+  warning: '#FFB547',
+  error: '#FF4C4C',
 };
 
 export default colors;

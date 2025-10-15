@@ -17,7 +17,7 @@ const requestLocationPermission = async () => {
       );
       return granted === PermissionsAndroid.RESULTS.GRANTED;
     } catch (error) {
-      console.warn('Konum izni hatasıı:', error);
+      console.warn('Konum izni hatası:', error);
       return false;
     }
   }
