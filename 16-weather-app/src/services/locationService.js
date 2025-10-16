@@ -17,7 +17,7 @@ const requestLocationPermission = async () => {
       );
       return granted === PermissionsAndroid.RESULTS.GRANTED;
     } catch (error) {
-      console.warn('Konum izni hatası:', error);
+      // console.warn('Konum izni hatası:', error);
       return false;
     }
   }
@@ -42,7 +42,7 @@ export const getCurrentLocation = () => {
         });
       },
       error => {
-        console.error('Konum alma hatası:', error);
+        // console.error('Konum alma hatası:', error);
         reject(error);
       },
       //   opsiyonlar

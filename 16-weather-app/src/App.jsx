@@ -20,9 +20,11 @@ import { getCurrentLocation } from './services/locationService';
 import {
   getRandomCityWeather,
   getReverseGeocoding,
+  getWeatherByCityName,
   getWeatherByCoordinates,
 } from './services/weatherService';
 import WeatherDetail from './components/WeatherDetail';
+import SearchBar from './components/SearchBar';
 
 const { height } = Dimensions.get('window');
 
@@ -32,7 +34,7 @@ const App = () => {
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
   const [locationInfo, setLocationInfo] = useState(null);
-
+  const [searchLoading, setSearchLoading] = useState(false);
   useEffect(() => {
     // İlk yüklemede kullanıcının konumundaki hava durumunu çek
     fetchCurrentLocationWeather();
@@ -62,18 +64,18 @@ const App = () => {
       setWeatherData(weatherResult.data);
       setLocationInfo(geoResult.data);
     } catch (error) {
-      console.error('Hata:', error);
+      // console.error('Hata:', error);
     } finally {
       setLoading(false);
     }
   };
 
   const getGradientColors = () => {
-    if (!weatherData) {
+    if (!weatherData?.weather[0].icon) {
       return [colors.weather.default.start, colors.weather.default.end];
     }
     //kodu al
-    const iconCode = weatherData.weather[0].icon;
+    const iconCode = weatherData?.weather[0].icon;
     //code göre bilgileri al
     const condition = getWeatherCondition(iconCode);
     //renkler
@@ -82,6 +84,7 @@ const App = () => {
     return [gradient.start, gradient.end];
   };
 
+  // sayfayı aşağı kaydırınca rastgele şehir verileri getiri
   const onRefresh = async () => {
     try {
       setRefreshing(true);
@@ -101,9 +104,36 @@ const App = () => {
       setLocationInfo(geoResult.data);
     } catch (error) {
       setError(error.message);
-      console.error('Yenileme hatası:', error);
+      // console.error('Yenileme hatası:', error);
     } finally {
       setRefreshing(false);
+    }
+  };
+
+  // şehir arama
+  const handleCitySearch = async cityName => {
+    try {
+      setSearchLoading(true);
+      setError(null);
+      const weatherResult = await getWeatherByCityName(cityName);
+      if (!weatherResult.success) {
+        throw new Error(weatherResult.error);
+      }
+      const geoResult = await getReverseGeocoding(
+        weatherResult.data.coord.lat,
+        weatherResult.data.coord.lon,
+      );
+      setWeatherData(weatherResult.data);
+      setLocationInfo(geoResult.data);
+    } catch (error) {
+      setError(error.message);
+      // console.error('Arama Hatası:', error);
+
+      setTimeout(() => {
+        setError(null);
+      }, 3000);
+    } finally {
+      setSearchLoading(false);
     }
   };
 
@@ -131,7 +161,7 @@ const App = () => {
         <View style={styles.wrapper}>
           <StatusBar barStyle="light-content" />
 
-          <Text style={styles.errorText}>❌ {error}</Text>
+          <Text style={styles.errorText}> {error}</Text>
           <Text style={styles.errorSubtext}>
             Lütfen konum izinlerini kontol edin
           </Text>
@@ -143,6 +173,12 @@ const App = () => {
     <LinearGradient colors={getGradientColors()} style={styles.container}>
       <StatusBar barStyle="light-content" />
       <SafeAreaView style={styles.safeArea}>
+        <SearchBar onSearch={handleCitySearch} loading={searchLoading} />
+        {error && weatherData && (
+          <View style={styles.errorBanner}>
+            <Text style={styles.errorBannerText}>{error}</Text>
+          </View>
+        )}
         <ScrollView
           contentContainerStyle={styles.scrollContent}
           refreshControl={
@@ -169,6 +205,7 @@ const App = () => {
             {format(new Date(), 'dd MMMM yy, EEEE', { locale: tr })}
           </Text>
           {/* Icon */}
+
           <WeatherIcon iconCode={weatherData?.weather[0].icon} />
 
           {/* Hava durumu açıklması */}
@@ -227,11 +264,13 @@ const styles = StyleSheet.create({
   },
   safeArea: {
     flex: 1,
+    marginTop: 50,
   },
   scrollContent: {
     flexGrow: 1,
     paddingHorizontal: 20,
     paddingBottom: 40,
+    paddingTop: 20,
     maxHeight: height,
   },
   wrapper: {
@@ -262,7 +301,7 @@ const styles = StyleSheet.create({
 
   locationContainer: {
     alignItems: 'center',
-    marginTop: 30,
+    marginTop: 15,
   },
   locationText: {
     fontSize: 28,
@@ -287,14 +326,14 @@ const styles = StyleSheet.create({
     color: colors.text.primary,
     textAlign: 'center',
     fontWeight: '600',
-    marginTop: 10,
+    marginTop: 5,
     letterSpacing: 2,
   },
   tempContainer: {
     flexDirection: 'row',
     alignItems: 'flex-start',
     justifyContent: 'center',
-    marginTop: 20,
+    marginTop: 10,
   },
   temp: {
     fontSize: 96,
@@ -312,12 +351,12 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: colors.text.secondary,
     textAlign: 'center',
-    marginTop: 8,
+    marginTop: 5,
   },
   detailsContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
-    marginTop: 30,
+    marginTop: 20,
     flexWrap: 'wrap',
   },
   refreshHint: {
@@ -326,6 +365,19 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginTop: 30,
     fontStyle: 'italic',
+  },
+  errorBanner: {
+    backgroundColor: 'rgba(255, 82, 82, 0.9)',
+    marginHorizontal: 20,
+    marginTop: 10,
+    padding: 12,
+    borderRadius: 10,
+    alignItems: 'center',
+  },
+  errorBannerText: {
+    color: '#FFFFFF',
+    fontSize: 14,
+    fontWeight: '600',
   },
 });
 export default App;

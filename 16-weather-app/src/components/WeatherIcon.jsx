@@ -17,7 +17,7 @@ const styles = StyleSheet.create({
   container: {
     alignItems: 'center',
     justifyContent: 'center',
-    marginVertical: 10,
+    marginVertical: 5,
   },
   icon: {
     shadowColor: '#000',

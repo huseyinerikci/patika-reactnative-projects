@@ -18,7 +18,7 @@ export const getWeatherByCoordinates = async (latitude, longitude) => {
     });
     return { success: true, data: response.data };
   } catch (error) {
-    console.error('Hava durumu çekme hatası:', error);
+    // console.error('Hava durumu çekme hatası:', error);
     return { success: false, error: error.message };
   }
 };
@@ -45,10 +45,33 @@ export const getRandomCityWeather = async () => {
   return getWeatherByCoordinates(randomCity.lat, randomCity.lon);
 };
 
+//Şehir ismine göre verileri alma
+export const getWeatherByCityName = async cityName => {
+  try {
+    const response = await axios.get(`${BASE_URL}/weather`, {
+      params: {
+        q: cityName || cityName + ',TR',
+        appid: API_KEY,
+        units: 'metric',
+        lang: 'tr',
+      },
+    });
+    return { success: true, data: response.data };
+  } catch (error) {
+    // console.error('Şehir arama hatası:', error);
+
+    let errmsg = 'Şehir Bulunamadı';
+    if (error.response?.status === 404) {
+      errmsg = 'Şehir bulunamadı. Lütfen geçerli bir şehir adı girin.';
+    } else if (error.response?.status === 401) {
+      errmsg = 'API anahtarı geçersiz';
+    }
+    return { success: false, error: errmsg };
+  }
+};
+
 // Koordinatları il-ilçe bilgisine çevir (Reverse Geocoding)
 export const getReverseGeocoding = async (latitude, longitude) => {
-  console.log('Geocoding parametreleri:', latitude, longitude);
-
   try {
     const response = await axios.get(
       'https://api.bigdatacloud.net/data/reverse-geocode-client',
@@ -69,7 +92,7 @@ export const getReverseGeocoding = async (latitude, longitude) => {
       },
     };
   } catch (error) {
-    console.error('Goecoding hatası:', error);
+    // console.error('Goecoding hatası:', error);
     return {
       success: false,
       error: error.message,
