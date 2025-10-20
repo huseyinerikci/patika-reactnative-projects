@@ -59,5 +59,10 @@
 
 	<key>GOOGLE_API_KEY</key>
 	<string></string>
+
+	<key>UIAppFonts</key>
+	<array>
+    	<string>Ionicons.ttf</string>
+	</array>
 </dict>
 </plist>
