@@ -6,6 +6,7 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import HomeScreen from '../screens/HomeScreen';
 import RestaurantDetailScreen from '../screens/RestaurantDetailScreen';
 import MapScreen from '../screens/MapScreen';
+import { Platform } from 'react-native';
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
 
@@ -18,7 +19,7 @@ const HomeStack = () => {
     >
       <Stack.Screen name="HomeMain" component={HomeScreen} />
       <Stack.Screen
-        name="RestaaurantDetail"
+        name="RestaurantDetail"
         component={RestaurantDetailScreen}
         options={{ headerShown: false, presentation: 'modal' }}
       />
@@ -58,8 +59,8 @@ const AppNavigator = () => {
           shadowOffset: { width: 0, height: -4 },
           shadowOpacity: 0.1,
           shadowRadius: 8,
-          height: 60,
-          paddingBottom: 8,
+          height: Platform.OS === 'ios' ? 80 : 60,
+          paddingBottom: Platform.OS === 'ios' ? 20 : 8,
           paddingTop: 8,
         },
         tabBarLabelStyle: {

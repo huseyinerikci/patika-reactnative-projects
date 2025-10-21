@@ -129,3 +129,4 @@ dependencies {
     implementation 'com.google.android.gms:play-services-maps:18.0.2'
    
 }
+apply from: project(':react-native-config').projectDir.getPath() + "/dotenv.gradle"
