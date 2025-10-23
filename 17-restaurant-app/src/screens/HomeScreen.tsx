@@ -1,4 +1,11 @@
-import { View, Text, ActivityIndicator, StyleSheet } from 'react-native';
+import {
+  View,
+  Text,
+  ActivityIndicator,
+  StyleSheet,
+  FlatList,
+  RefreshControl,
+} from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { Restaurant } from '../types/restaurant';
@@ -7,6 +14,7 @@ import YelpService from '../services/yelp';
 import { COLORS, SIZES } from '../constants/theme';
 import LinearGradient from 'react-native-linear-gradient';
 import SearchBar from '../components/SearchBar';
+import RestaurantCard from '../components/RestaurantCard';
 
 const HomeScreen: React.FC = () => {
   const navigation = useNavigation();
@@ -20,9 +28,9 @@ const HomeScreen: React.FC = () => {
   } | null>(null);
 
   useEffect(() => {
-    // loadRestaurants(41.0082, 28.9784);
+    loadRestaurants(41.0082, 28.9784);
     //kullanıcı konum al
-    getCurrentLocation();
+    //getCurrentLocation();
   }, []);
   const getCurrentLocation = () => {
     Geolocation.getCurrentPosition(
@@ -71,6 +79,18 @@ const HomeScreen: React.FC = () => {
     }
   };
 
+  // restoran detay
+  const handleRestaurantPress = (restaurant: Restaurant) => {
+    navigation.navigate('RestaurantDetail' as never, { restaurant });
+  };
+
+  // yenileme
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    await loadRestaurants(userLocation?.latitude, userLocation?.longitude);
+    setRefreshing(false);
+  };
+
   //loading
   if (loading && !refreshing) {
     return (
@@ -100,7 +120,37 @@ const HomeScreen: React.FC = () => {
           {restaurants.length} restoran bulundu
         </Text>
       </LinearGradient>
+      {/* //arama çubuğu */}
       <SearchBar onSearch={handleSearch} />
+      {/* restoran listesi */}
+      <FlatList
+        data={restaurants}
+        keyExtractor={item => item.id}
+        renderItem={({ item }) => (
+          <RestaurantCard
+            restaurant={item}
+            onPress={() => handleRestaurantPress(item)}
+          />
+        )}
+        contentContainerStyle={styles.listContent}
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={handleRefresh}
+            colors={[COLORS.primary]}
+            tintColor={COLORS.primary}
+          />
+        }
+        ListEmptyComponent={
+          <View style={styles.emptyContainer}>
+            <Text style={styles.emptyText}>🔍 Restoran bulunamadı</Text>
+            <Text style={styles.emptySubtext}>
+              Farklı bir arama terimi deneyin
+            </Text>
+          </View>
+        }
+      />
     </View>
   );
 };
@@ -147,6 +197,23 @@ const styles = StyleSheet.create({
     fontSize: SIZES.body2,
     color: COLORS.textSecondary,
     textAlign: 'center',
+  },
+  listContent: {
+    paddingBottom: SIZES.xl,
+  },
+  emptyContainer: {
+    paddingVertical: SIZES.xxl,
+    alignItems: 'center',
+  },
+  emptyText: {
+    fontSize: SIZES.h4,
+    color: COLORS.textSecondary,
+    fontWeight: '600',
+    marginBottom: SIZES.xs,
+  },
+  emptySubtext: {
+    fontSize: SIZES.body2,
+    color: COLORS.textLight,
   },
 });
 

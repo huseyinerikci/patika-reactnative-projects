@@ -78,3 +78,8 @@ export interface YelpApiResponse {
     center: Coordinates;
   };
 }
+export interface RestaurantDetailsResponse extends Restaurant {
+  photos: string[];
+  hours: Hour[];
+  reviews?: Review[];
+}

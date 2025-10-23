@@ -1,5 +1,10 @@
 import axios from 'axios';
-import { Restaurant, SearchParams, YelpApiResponse } from '../types/restaurant';
+import {
+  Restaurant,
+  RestaurantDetailsResponse,
+  SearchParams,
+  YelpApiResponse,
+} from '../types/restaurant';
 import Config from 'react-native-config';
 
 const YELP_API_KEY = Config.YELP_API_KEY;
@@ -12,6 +17,7 @@ const api = axios.create({
 });
 
 class YelpService {
+  // restoran arama
   async searchRestaurants(params: SearchParams): Promise<Restaurant[]> {
     try {
       const response = await api.get<YelpApiResponse>('/businesses/search', {
@@ -32,6 +38,30 @@ class YelpService {
     } catch (error) {
       console.error('Restoran arama hatası:', error);
       throw new Error('Restoranlar yüklenirken bir hata oluştu');
+    }
+  }
+
+  // restoran detay
+  async getRestaurantDetails(id: string): Promise<RestaurantDetailsResponse> {
+    try {
+      const response = await api.get<RestaurantDetailsResponse>(
+        `/businesses/${id}`,
+      );
+      return response.data;
+    } catch (error) {
+      console.error('Restoran detay hatası:', error);
+      throw new Error('Restoran detayı yüklenirken bir hata oluştu');
+    }
+  }
+
+  // restoran yorumları
+  async getRestaurantReviews(id: string) {
+    try {
+      const response = await api.get(`/businesses/${id}/reviews`);
+      return response.data.reviews;
+    } catch (error) {
+      console.error('Yorum yükleme hatası', error);
+      throw new Error('Yorumlar yüklenirken bir hata oluştu');
     }
   }
 }
