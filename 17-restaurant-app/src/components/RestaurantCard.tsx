@@ -23,7 +23,6 @@ const RestaurantCard: React.FC<RestaurantCardProps> = ({
   restaurant,
   onPress,
 }) => {
-  console.log(restaurant);
   // kategori
   const categories = restaurant.categories
     .map(cat => cat.title)

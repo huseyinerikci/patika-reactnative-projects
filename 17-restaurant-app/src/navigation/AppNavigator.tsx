@@ -7,10 +7,17 @@ import HomeScreen from '../screens/HomeScreen';
 import RestaurantDetailScreen from '../screens/RestaurantDetailScreen';
 import MapScreen from '../screens/MapScreen';
 import { Platform } from 'react-native';
-const Stack = createStackNavigator();
-const Tab = createBottomTabNavigator();
+import {
+  HomeStackParamList,
+  MapStackParamList,
+  TabParamList,
+} from '../types/navigation';
 
-const HomeStack = () => {
+const Stack = createStackNavigator<HomeStackParamList>();
+const MapStack = createStackNavigator<MapStackParamList>();
+const Tab = createBottomTabNavigator<TabParamList>();
+
+const HomeStackNavigator = () => {
   return (
     <Stack.Navigator
       screenOptions={{
@@ -27,20 +34,20 @@ const HomeStack = () => {
   );
 };
 
-const MapStack = () => {
+const MapStackNavigator = () => {
   return (
-    <Stack.Navigator
+    <MapStack.Navigator
       screenOptions={{
         headerShown: false,
       }}
     >
-      <Stack.Screen name="MapMain" component={MapScreen} />
-      <Stack.Screen
+      <MapStack.Screen name="MapMain" component={MapScreen} />
+      <MapStack.Screen
         name="RestaurantDetail"
         component={RestaurantDetailScreen}
         options={{ headerShown: false, presentation: 'modal' }}
       />
-    </Stack.Navigator>
+    </MapStack.Navigator>
   );
 };
 
@@ -71,7 +78,7 @@ const AppNavigator = () => {
     >
       <Tab.Screen
         name="Home"
-        component={HomeStack}
+        component={HomeStackNavigator}
         options={{
           tabBarLabel: 'Keşfet',
           tabBarIcon: ({ color, size }) => (
@@ -81,7 +88,7 @@ const AppNavigator = () => {
       />
       <Tab.Screen
         name="Map"
-        component={MapStack}
+        component={MapStackNavigator}
         options={{
           tabBarLabel: 'Harita',
           tabBarIcon: ({ color, size }) => (

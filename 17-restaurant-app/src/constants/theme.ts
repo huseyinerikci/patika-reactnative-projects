@@ -104,10 +104,3 @@ export const SHADOWS = {
     elevation: 8,
   },
 };
-
-export const FONTS = {
-  regular: 'System',
-  medium: 'System',
-  bold: 'System',
-  light: 'System',
-};

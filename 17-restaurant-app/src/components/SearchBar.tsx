@@ -45,6 +45,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
     onSearch('');
   };
 
+  // animasyonlu border rengi
   const borderColor = focusAnimation.interpolate({
     inputRange: [0, 1],
     outputRange: [COLORS.border, COLORS.primary],

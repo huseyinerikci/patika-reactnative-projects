@@ -64,5 +64,20 @@ class YelpService {
       throw new Error('Yorumlar yüklenirken bir hata oluştu');
     }
   }
+
+  // yakındaki restoranları getir
+  async getNearbyRestaurants(
+    latitude: number,
+    longitude: number,
+    radius: number = 5000,
+  ): Promise<Restaurant[]> {
+    return this.searchRestaurants({
+      latitude,
+      longitude,
+      radius,
+      sort_by: 'distance',
+    });
+  }
 }
+
 export default new YelpService();

@@ -15,10 +15,12 @@ import { COLORS, SIZES } from '../constants/theme';
 import LinearGradient from 'react-native-linear-gradient';
 import SearchBar from '../components/SearchBar';
 import RestaurantCard from '../components/RestaurantCard';
+import { HomeScreenNavigationProp } from '../types/navigation';
 
 const HomeScreen: React.FC = () => {
-  const navigation = useNavigation();
-  const [restaurants, setRetaurants] = useState<Restaurant[]>([]);
+  const navigation = useNavigation<HomeScreenNavigationProp>();
+
+  const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -28,10 +30,10 @@ const HomeScreen: React.FC = () => {
   } | null>(null);
 
   useEffect(() => {
-    loadRestaurants(41.0082, 28.9784);
     //kullanıcı konum al
-    //getCurrentLocation();
+    getCurrentLocation();
   }, []);
+
   const getCurrentLocation = () => {
     Geolocation.getCurrentPosition(
       position => {
@@ -56,21 +58,42 @@ const HomeScreen: React.FC = () => {
     try {
       setLoading(true);
       setError(null);
-      const results = await YelpService.searchRestaurants({
-        latitude: latitude || userLocation?.latitude,
-        longitude: longitude || userLocation?.longitude,
-        term: searchQuery,
-        limit: 30,
-      });
-      setRetaurants(results);
+      let results: Restaurant[];
+
+      if (searchQuery && searchQuery.trim()) {
+        // Arama varsa searchRestaurants kullan
+        results = await YelpService.searchRestaurants({
+          latitude: latitude || userLocation?.latitude,
+          longitude: longitude || userLocation?.longitude,
+          term: searchQuery,
+          limit: 30,
+        });
+      } else if (latitude && longitude) {
+        // Konum varsa ve arama yoksa getNearbyRestaurants kullan
+        results = await YelpService.getNearbyRestaurants(
+          latitude,
+          longitude,
+          10000, // 10km yarıçap
+        );
+      } else {
+        // Varsayılan arama
+        results = await YelpService.searchRestaurants({
+          latitude: latitude || userLocation?.latitude,
+          longitude: longitude || userLocation?.longitude,
+          limit: 30,
+        });
+      }
+
+      setRestaurants(results);
     } catch (error) {
-      setError('restoranlar yüklenirken bir hata oluştu');
+      setError('Restoranlar yüklenirken bir hata oluştu');
       console.error(error);
     } finally {
       setLoading(false);
     }
   };
 
+  // arama fonksiyonu
   const handleSearch = (query: string) => {
     if (query.trim()) {
       loadRestaurants(userLocation?.latitude, userLocation?.longitude, query);
@@ -81,7 +104,7 @@ const HomeScreen: React.FC = () => {
 
   // restoran detay
   const handleRestaurantPress = (restaurant: Restaurant) => {
-    navigation.navigate('RestaurantDetail' as never, { restaurant });
+    navigation.navigate('RestaurantDetail', { restaurant });
   };
 
   // yenileme
@@ -120,8 +143,10 @@ const HomeScreen: React.FC = () => {
           {restaurants.length} restoran bulundu
         </Text>
       </LinearGradient>
+
       {/* //arama çubuğu */}
       <SearchBar onSearch={handleSearch} />
+
       {/* restoran listesi */}
       <FlatList
         data={restaurants}
