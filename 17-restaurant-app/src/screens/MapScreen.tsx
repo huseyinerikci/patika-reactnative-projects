@@ -8,15 +8,18 @@ import {
 import React, { useEffect, useRef, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import MapView, { PROVIDER_GOOGLE, Region } from 'react-native-maps';
+import { Platform } from 'react-native';
 import { Restaurant } from '../types/restaurant';
 import Geolocation from '@react-native-community/geolocation';
 import YelpService from '../services/yelp';
 import { COLORS, SHADOWS, SIZES } from '../constants/theme';
 import MapMarker from '../components/MapMarker';
 import SearchBar from '../components/SearchBar';
-import { Icon } from 'react-native-vector-icons/Ionicons';
+import Icon from 'react-native-vector-icons/Ionicons';
 import MapCallout from '../components/MapCallout';
 import { MapScreenNavigationProp } from '../types/navigation';
+
+import ErrorBoundary from '../components/ErrorBoundary';
 
 const MapScreen: React.FC = () => {
   const navigation = useNavigation<MapScreenNavigationProp>();
@@ -38,8 +41,20 @@ const MapScreen: React.FC = () => {
   }, []);
 
   const getCurrentLocation = () => {
+    // Eğer getCurrentPosition uzun sürerse (izin bekleniyor vb.) fallback yapması için
+    // bir JS timeout ekliyoruz. Ayrıca native timeout parametresi veriyoruz.
+    let didRespond = false;
+    const fallbackTimeout = setTimeout(() => {
+      if (!didRespond) {
+        console.warn('Konum zaman aşımı. Varsayılan bölge kullanılacak.');
+        loadRestaurantsInRegion(region.latitude, region.longitude);
+      }
+    }, 8000); // 8s
+
     Geolocation.getCurrentPosition(
       position => {
+        didRespond = true;
+        clearTimeout(fallbackTimeout);
         const { latitude, longitude } = position.coords;
         const newRegion = {
           latitude,
@@ -51,9 +66,12 @@ const MapScreen: React.FC = () => {
         loadRestaurantsInRegion(latitude, longitude);
       },
       error => {
+        didRespond = true;
+        clearTimeout(fallbackTimeout);
         console.error('Konum hatası:', error);
         loadRestaurantsInRegion(region.latitude, region.longitude);
       },
+      { enableHighAccuracy: true, timeout: 20000, maximumAge: 1000 },
     );
   };
   const loadRestaurantsInRegion = async (
@@ -138,24 +156,27 @@ const MapScreen: React.FC = () => {
   return (
     <View style={styles.container}>
       {/* harita */}
-      <MapView
-        ref={mapRef}
-        provider={PROVIDER_GOOGLE}
-        style={styles.map}
-        initialRegion={region}
-        onRegionChangeComplete={handleRegionChangeComplete}
-        showsUserLocation
-        showsMyLocationButton={false}
-      >
-        {restaurants.map(restaurant => (
-          <MapMarker
-            key={restaurant.id}
-            restaurant={restaurant}
-            onPress={() => handleMarkerPress(restaurant)}
-            isSelected={selectedRestaurant?.id === restaurant.id}
-          />
-        ))}
-      </MapView>
+      <ErrorBoundary>
+        <MapView
+          ref={mapRef}
+          // Sadece Android'de PROVIDER_GOOGLE; iOS için default kullanmak
+          provider={Platform.OS === 'android' ? PROVIDER_GOOGLE : undefined}
+          style={styles.map}
+          initialRegion={region}
+          onRegionChangeComplete={handleRegionChangeComplete}
+          showsUserLocation
+          showsMyLocationButton={false}
+        >
+          {restaurants.map(restaurant => (
+            <MapMarker
+              key={restaurant.id}
+              restaurant={restaurant}
+              onPress={() => handleMarkerPress(restaurant)}
+              isSelected={selectedRestaurant?.id === restaurant.id}
+            />
+          ))}
+        </MapView>
+      </ErrorBoundary>
       {/* Arama çubuğu */}
       <View style={styles.searchContainer}>
         <SearchBar onSearch={handleSearch} />
@@ -201,7 +222,7 @@ const styles = StyleSheet.create({
   },
   searchContainer: {
     position: 'absolute',
-    top: SIZES.xl,
+    top: SIZES.xxl,
     left: 0,
     right: 0,
   },
@@ -219,7 +240,7 @@ const styles = StyleSheet.create({
   },
   countBadge: {
     position: 'absolute',
-    top: SIZES.xl + 70,
+    top: SIZES.xl + 90,
     right: SIZES.md,
     flexDirection: 'row',
     alignItems: 'center',

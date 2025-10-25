@@ -59,29 +59,23 @@ const HomeScreen: React.FC = () => {
       setLoading(true);
       setError(null);
       let results: Restaurant[];
+      // Belirli bir latitude/longitude yoksa kullanıcı konumu veya varsayılan (İstanbul) kullan
+      const defaultLat = 41.0082;
+      const defaultLon = 28.9784;
+      const useLat = latitude ?? userLocation?.latitude ?? defaultLat;
+      const useLon = longitude ?? userLocation?.longitude ?? defaultLon;
 
       if (searchQuery && searchQuery.trim()) {
-        // Arama varsa searchRestaurants kullan
+        // Arama varsa searchRestaurants kullan (konum ile birlikte)
         results = await YelpService.searchRestaurants({
-          latitude: latitude || userLocation?.latitude,
-          longitude: longitude || userLocation?.longitude,
+          latitude: useLat,
+          longitude: useLon,
           term: searchQuery,
           limit: 30,
         });
-      } else if (latitude && longitude) {
-        // Konum varsa ve arama yoksa getNearbyRestaurants kullan
-        results = await YelpService.getNearbyRestaurants(
-          latitude,
-          longitude,
-          10000, // 10km yarıçap
-        );
       } else {
-        // Varsayılan arama
-        results = await YelpService.searchRestaurants({
-          latitude: latitude || userLocation?.latitude,
-          longitude: longitude || userLocation?.longitude,
-          limit: 30,
-        });
+        // Konum bilgisi ile yakındaki restoranları getir
+        results = await YelpService.getNearbyRestaurants(useLat, useLon, 10000);
       }
 
       setRestaurants(results);

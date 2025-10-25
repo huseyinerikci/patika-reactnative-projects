@@ -20,24 +20,48 @@ class YelpService {
   // restoran arama
   async searchRestaurants(params: SearchParams): Promise<Restaurant[]> {
     try {
+      if (!YELP_API_KEY) {
+        // Eğer API anahtarı yoksa 400/401 sonuçları yerine boş liste döndürüyoruz
+        console.warn(
+          'YELP_API_KEY is not set. Returning empty results to avoid failed network calls.',
+        );
+        return [];
+      }
+      // build request params only with defined values to avoid sending `undefined`
+      const reqParams: any = {
+        term: params.term || 'restaurants',
+        categories: params.categories || 'restaurants',
+        limit: params.limit || 20,
+      };
+
+      if (params.latitude != null && params.longitude != null) {
+        reqParams.latitude = params.latitude;
+        reqParams.longitude = params.longitude;
+      } else if (params.location) {
+        reqParams.location = params.location;
+      }
+
+      if (params.radius) reqParams.radius = params.radius;
+      if (params.price) reqParams.price = params.price;
+      if (params.open_now != null) reqParams.open_now = params.open_now;
+      if (params.sort_by) reqParams.sort_by = params.sort_by;
+
+      // Log gönderilen parametreler (debug için)
+      // eslint-disable-next-line no-console
+      console.debug('Yelp search params:', reqParams);
+
       const response = await api.get<YelpApiResponse>('/businesses/search', {
-        params: {
-          term: params.term || 'restaurants',
-          location: params.location,
-          latitude: params.latitude,
-          longitude: params.longitude,
-          radius: params.radius || 5000, // 5km varsayılan
-          categories: params.categories || 'restaurants',
-          price: params.price,
-          open_now: params.open_now,
-          sort_by: params.sort_by || 'best_match',
-          limit: params.limit || 20,
-        },
+        params: reqParams,
       });
       return response.data.businesses;
-    } catch (error) {
-      console.error('Restoran arama hatası:', error);
-      throw new Error('Restoranlar yüklenirken bir hata oluştu');
+    } catch (error: unknown) {
+      const err: any = error;
+      console.error(
+        'Restoran arama hatası:',
+        err.response?.data || err.message || err,
+      );
+      // Eğer API bir hata döndürürse uygulamanın çökmesini önlemek için boş liste döndür
+      return [];
     }
   }
 
@@ -48,9 +72,12 @@ class YelpService {
         `/businesses/${id}`,
       );
       return response.data;
-    } catch (error) {
+    } catch (error: any) {
       console.error('Restoran detay hatası:', error);
-      throw new Error('Restoran detayı yüklenirken bir hata oluştu');
+      throw new Error(
+        error.response?.data?.error?.description ||
+          'Restoran detayı yüklenirken bir hata oluştu',
+      );
     }
   }
 
@@ -59,9 +86,15 @@ class YelpService {
     try {
       const response = await api.get(`/businesses/${id}/reviews`);
       return response.data.reviews;
-    } catch (error) {
+    } catch (error: any) {
+      if (error.response?.status === 404 || error.response?.status === 403) {
+        console.warn(
+          "Yorum endpoint'ine erişim yok - ücretsiz.  plan kısıtlaması",
+        );
+        return [];
+      }
       console.error('Yorum yükleme hatası', error);
-      throw new Error('Yorumlar yüklenirken bir hata oluştu');
+      return [];
     }
   }
 

@@ -54,6 +54,8 @@
 	
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Yakınındaki restoranları görmek için konum izni gerekli</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>Yakınındaki restoranları görmek için konum izni gerekli</string>
 	<key>NSLocationAlwaysUsageDescription</key>
 	<string>Yakınındaki restoranları görmek için konum izni gerekli</string>
 

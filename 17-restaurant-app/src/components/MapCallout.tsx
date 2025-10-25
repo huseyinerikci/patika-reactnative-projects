@@ -9,7 +9,7 @@ import {
 import React from 'react';
 import { Restaurant } from '../types/restaurant';
 import { COLORS, SHADOWS, SIZES } from '../constants/theme';
-import { Icon } from 'react-native-vector-icons/Ionicons';
+import Icon from 'react-native-vector-icons/Ionicons';
 
 const { width } = Dimensions.get('window');
 const CALLOUT_WIDTH = width * 0.85;

@@ -4,6 +4,7 @@ import React, { useEffect } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import AppNavigator from './navigation/AppNavigator';
 import { COLORS } from './constants/theme';
+import Geolocation from '@react-native-community/geolocation';
 
 const App: React.FC = () => {
   useEffect(() => {
@@ -31,6 +32,11 @@ const App: React.FC = () => {
       } catch (error) {
         console.warn(error);
       }
+    } else if (Platform.OS === 'ios') {
+      // iOS için callback ile çağır
+      Geolocation.requestAuthorization(() => {
+        console.log('iOS: Konum izni istendi');
+      });
     }
   };
 

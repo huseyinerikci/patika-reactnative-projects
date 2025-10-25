@@ -28,12 +28,14 @@ const RestaurantCard: React.FC<RestaurantCardProps> = ({
     .map(cat => cat.title)
     .slice(0, 2)
     .join(' • ');
-  // mesafe
+
+  // mesafe formatlama
   const formatDistance = (distance?: number) => {
-    if (!distance) return null;
+    if (distance === undefined || distance === null) return null;
     const km = (distance / 1000).toFixed(1);
     return `${km} km`;
   };
+
   return (
     <TouchableOpacity
       style={styles.container}
@@ -41,26 +43,35 @@ const RestaurantCard: React.FC<RestaurantCardProps> = ({
       activeOpacity={0.8}
     >
       <View style={styles.imageContainer}>
-        <Image
-          source={{ uri: restaurant.image_url }}
-          style={styles.image}
-          resizeMode="cover"
-        />
+        {restaurant.image_url && restaurant.image_url.trim() !== '' ? (
+          <Image
+            source={{ uri: restaurant.image_url }}
+            style={styles.image}
+            resizeMode="cover"
+          />
+        ) : (
+          <View style={[styles.image, styles.placeholder]}>
+            <Text style={styles.placeholderText}>Resim yok</Text>
+          </View>
+        )}
         <LinearGradient
           colors={['transparent', 'rgba(0,0,0,0.7)']}
           style={styles.gradient}
         />
       </View>
+
       {/* restoran durumu */}
       {restaurant.is_closed && (
         <View style={styles.closedBadge}>
           <Text style={styles.closedText}>Kapalı</Text>
         </View>
       )}
+
       {/* rating */}
       <View style={styles.ratingBadge}>
         <Text style={styles.ratingText}>⭐ {restaurant.rating}</Text>
       </View>
+
       {/* içerik */}
       <View style={styles.content}>
         <Text style={styles.name} numberOfLines={1}>
@@ -114,6 +125,15 @@ const styles = StyleSheet.create({
   image: {
     width: '100%',
     height: '100%',
+  },
+  placeholder: {
+    backgroundColor: COLORS.border,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  placeholderText: {
+    color: COLORS.textSecondary,
+    fontSize: SIZES.body2,
   },
   gradient: {
     position: 'absolute',
