@@ -6,7 +6,7 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import React, { useEffect, useRef, useState } from 'react';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import MapView, { PROVIDER_GOOGLE, Region } from 'react-native-maps';
 import { Platform } from 'react-native';
 import { Restaurant } from '../types/restaurant';
@@ -18,11 +18,23 @@ import SearchBar from '../components/SearchBar';
 import Icon from 'react-native-vector-icons/Ionicons';
 import MapCallout from '../components/MapCallout';
 import { MapScreenNavigationProp } from '../types/navigation';
+import { RouteProp } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import ErrorBoundary from '../components/ErrorBoundary';
 
 const MapScreen: React.FC = () => {
   const navigation = useNavigation<MapScreenNavigationProp>();
+  const route = useRoute<
+    RouteProp<
+      {
+        MapMain:
+          | { restaurants?: Restaurant[]; searchQuery?: string }
+          | undefined;
+      },
+      'MapMain'
+    >
+  >();
   const mapRef = useRef<MapView>(null);
 
   const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
@@ -37,8 +49,52 @@ const MapScreen: React.FC = () => {
   });
 
   useEffect(() => {
-    getCurrentLocation();
+    loadStoredSearchResults();
   }, []);
+
+  const loadStoredSearchResults = async () => {
+    try {
+      // AsyncStorage'dan son arama sonuçlarını oku
+      const storedResults = await AsyncStorage.getItem('lastSearchResults');
+      const storedQuery = await AsyncStorage.getItem('lastSearchQuery');
+
+      if (storedResults) {
+        const restaurants = JSON.parse(storedResults);
+        if (restaurants.length > 0) {
+          setRestaurants(restaurants);
+          setLoading(false);
+
+          // İlk restoranın konumuna odaklan
+          const firstRestaurant = restaurants[0];
+          if (firstRestaurant.coordinates) {
+            // Stored query'ye göre zoom seviyesini ayarla
+            const isStoredCitySearch =
+              storedQuery &&
+              /^[a-zA-ZğüşıöçĞÜŞİÖÇ\s]+$/.test(storedQuery.trim()) &&
+              !storedQuery.toLowerCase().includes('restaurant') &&
+              !storedQuery.toLowerCase().includes('cafe') &&
+              !storedQuery.toLowerCase().includes('bar');
+
+            const delta = isStoredCitySearch ? 0.1 : 0.05; // Şehir araması için daha geniş
+
+            setRegion({
+              latitude: firstRestaurant.coordinates.latitude,
+              longitude: firstRestaurant.coordinates.longitude,
+              latitudeDelta: delta,
+              longitudeDelta: delta,
+            });
+          }
+          return; // Stored results bulundu, normal location loading yapma
+        }
+      }
+
+      // Stored results yoksa normal konum alma işlemini yap
+      getCurrentLocation();
+    } catch (error) {
+      console.error('AsyncStorage okuma hatası:', error);
+      getCurrentLocation();
+    }
+  };
 
   const getCurrentLocation = () => {
     // Eğer getCurrentPosition uzun sürerse (izin bekleniyor vb.) fallback yapması için
@@ -84,14 +140,47 @@ const MapScreen: React.FC = () => {
       let results: Restaurant[];
 
       if (searchQuery && searchQuery.trim()) {
-        // Arama varsa searchRestaurants kullan
-        results = await YelpService.searchRestaurants({
-          latitude,
-          longitude,
-          term: searchQuery,
-          radius: 5000,
-          limit: 50,
-        });
+        // Şehir adı mı yoksa restoran adı mı kontrol et
+        const isCitySearch =
+          /^[a-zA-ZğüşıöçĞÜŞİÖÇ\s]+$/.test(searchQuery.trim()) &&
+          !searchQuery.toLowerCase().includes('restaurant') &&
+          !searchQuery.toLowerCase().includes('cafe') &&
+          !searchQuery.toLowerCase().includes('bar');
+
+        if (isCitySearch) {
+          // Şehir adı ise location parametresi kullan
+          results = await YelpService.searchRestaurants({
+            location: searchQuery.trim(),
+            term: 'restaurants',
+            limit: 50,
+          });
+
+          // Şehir araması yapıldığında haritayı ilk restoranın konumuna odakla
+          if (results.length > 0 && results[0].coordinates) {
+            const firstRestaurant = results[0];
+            const newRegion = {
+              latitude: firstRestaurant.coordinates.latitude,
+              longitude: firstRestaurant.coordinates.longitude,
+              latitudeDelta: 0.1, // Şehir görünümü için daha geniş
+              longitudeDelta: 0.1,
+            };
+            setRegion(newRegion);
+
+            // Haritayı yeni konuma animasyonla taşı
+            setTimeout(() => {
+              mapRef.current?.animateToRegion(newRegion, 1000);
+            }, 100);
+          }
+        } else {
+          // Restoran adı ise mevcut konum ile arama yap
+          results = await YelpService.searchRestaurants({
+            latitude,
+            longitude,
+            term: searchQuery,
+            radius: 5000,
+            limit: 50,
+          });
+        }
       } else {
         // Arama yoksa getNearbyRestaurants kullan (mesafeye göre sıralı)
         results = await YelpService.getNearbyRestaurants(

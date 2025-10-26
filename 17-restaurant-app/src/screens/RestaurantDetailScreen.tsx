@@ -179,18 +179,13 @@ const RestaurantDetailScreen: React.FC = () => {
             </View>
           </View>
 
-          {/* kategori ve fiyat */}
+          {/* kategori */}
           <View style={styles.categorySection}>
             {restaurant.categories.map((cat, index) => (
               <View key={index} style={styles.categoryBadge}>
                 <Text style={styles.categoryText}>{cat.title}</Text>
               </View>
             ))}
-            {restaurant.price && (
-              <View style={styles.priceBadge}>
-                <Text style={styles.priceText}>{restaurant.price}</Text>
-              </View>
-            )}
           </View>
 
           {/* restoran durum */}
@@ -508,17 +503,6 @@ const styles = StyleSheet.create({
     fontSize: SIZES.body2,
     color: COLORS.surface,
     fontWeight: '600',
-  },
-  priceBadge: {
-    backgroundColor: COLORS.success,
-    paddingHorizontal: SIZES.sm,
-    paddingVertical: SIZES.xs,
-    borderRadius: SIZES.radiusFull,
-  },
-  priceText: {
-    fontSize: SIZES.body2,
-    color: COLORS.surface,
-    fontWeight: 'bold',
   },
   statusCard: {
     flexDirection: 'row',

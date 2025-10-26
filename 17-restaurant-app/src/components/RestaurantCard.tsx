@@ -78,15 +78,9 @@ const RestaurantCard: React.FC<RestaurantCardProps> = ({
           {restaurant.name}
         </Text>
 
-        <View style={styles.infoRow}>
-          <Text style={styles.categories} numberOfLines={1}>
-            {categories}
-          </Text>
-
-          {restaurant.price && (
-            <Text style={styles.price}>{restaurant.price}</Text>
-          )}
-        </View>
+        <Text style={styles.categories} numberOfLines={1}>
+          {categories}
+        </Text>
 
         <View style={styles.locationRow}>
           <Text style={styles.location} numberOfLines={1}>
@@ -180,22 +174,10 @@ const styles = StyleSheet.create({
     color: COLORS.text,
     marginBottom: SIZES.xs,
   },
-  infoRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: SIZES.xs,
-  },
   categories: {
-    flex: 1,
     fontSize: SIZES.body2,
     color: COLORS.textSecondary,
-    marginRight: SIZES.sm,
-  },
-  price: {
-    fontSize: SIZES.body2,
-    color: COLORS.success,
-    fontWeight: 'bold',
+    marginBottom: SIZES.xs,
   },
   locationRow: {
     flexDirection: 'row',

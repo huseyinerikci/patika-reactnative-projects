@@ -10,7 +10,7 @@ export type HomeStackParamList = {
 };
 
 export type MapStackParamList = {
-  MapMain: undefined;
+  MapMain: { restaurants?: Restaurant[]; searchQuery?: string } | undefined;
   RestaurantDetail: { restaurant: Restaurant };
 };
 
